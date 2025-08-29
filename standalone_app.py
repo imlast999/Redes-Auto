@@ -29,7 +29,8 @@ def check_dependencies():
         for package in missing_packages:
             try:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", package], 
-                                    capture_output=True)
+                                    stdout=subprocess.DEVNULL, 
+                                    stderr=subprocess.DEVNULL)
                 print(f"✅ {package} instalado")
             except subprocess.CalledProcessError:
                 print(f"❌ Error instalando {package}")
