@@ -9,12 +9,14 @@ import json
 from utils.video_processor import VideoProcessor
 from utils.instagram_api import InstagramAPI
 from utils.file_manager import FileManager
+from utils.scheduler import AutoScheduler
 from config.settings import SETTINGS
 
 # Initialize components
 video_processor = VideoProcessor()
 instagram_api = InstagramAPI()
 file_manager = FileManager()
+auto_scheduler = AutoScheduler()
 
 def main():
     st.set_page_config(
@@ -32,7 +34,7 @@ def main():
         st.header("Navigation")
         page = st.selectbox(
             "Select Page",
-            ["Dashboard", "Upload Videos", "Process Videos", "Manage Library", "Instagram Stats", "Settings"]
+            ["Dashboard", "Upload Videos", "Process Videos", "Manage Library", "Auto Scheduler", "Instagram Stats", "Settings"]
         )
     
     if page == "Dashboard":
@@ -43,6 +45,8 @@ def main():
         show_process_page()
     elif page == "Manage Library":
         show_library_page()
+    elif page == "Auto Scheduler":
+        show_scheduler_page()
     elif page == "Instagram Stats":
         show_instagram_stats()
     elif page == "Settings":
@@ -187,6 +191,8 @@ def show_process_page():
     
     with col1:
         add_watermark = st.checkbox("Add Watermark", value=True)
+        watermark_text = "@yourusername"
+        watermark_position = "bottom-right"
         if add_watermark:
             watermark_text = st.text_input("Watermark Text", value="@yourusername")
             watermark_position = st.selectbox(
@@ -196,6 +202,8 @@ def show_process_page():
     
     with col2:
         resize_video = st.checkbox("Resize for Instagram", value=True)
+        aspect_ratio = "9:16 (Stories/Reels)"
+        quality = "Medium"
         if resize_video:
             aspect_ratio = st.selectbox(
                 "Aspect Ratio",
@@ -340,6 +348,161 @@ def display_video_list(videos, folder_type):
                         st.rerun()
             
             st.markdown("---")
+
+def show_scheduler_page():
+    st.header("🤖 Auto Scheduler - Bot de Publicación")
+    
+    # Estado del programador
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        scheduler_status = "🟢 Activo" if auto_scheduler.is_running else "🔴 Inactivo"
+        st.metric("Estado del Bot", scheduler_status)
+    
+    with col2:
+        queue_count = len(auto_scheduler.get_publish_queue())
+        st.metric("Videos en Cola", queue_count)
+    
+    with col3:
+        published_count = len(file_manager.get_published_videos())
+        st.metric("Videos Publicados", published_count)
+    
+    # Controles principales
+    st.subheader("Controles del Bot")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🚀 Iniciar Bot", type="primary"):
+            auto_scheduler.config["enabled"] = True
+            auto_scheduler.save_config()
+            auto_scheduler.start_scheduler()
+            st.success("Bot iniciado!")
+            st.rerun()
+    
+    with col2:
+        if st.button("⏸️ Pausar Bot"):
+            auto_scheduler.stop_scheduler()
+            auto_scheduler.config["enabled"] = False
+            auto_scheduler.save_config()
+            st.success("Bot pausado!")
+            st.rerun()
+    
+    with col3:
+        if st.button("📤 Publicar Ahora"):
+            success, message = auto_scheduler.manual_publish_next()
+            if success:
+                st.success(message)
+            else:
+                st.error(message)
+            st.rerun()
+    
+    # Configuración del bot
+    st.subheader("Configuración")
+    
+    with st.form("scheduler_config"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("**Configuración General**")
+            watermark_text = st.text_input("Texto de Marca de Agua", value=auto_scheduler.config.get("watermark_text", "@tuusuario"))
+            auto_watermark = st.checkbox("Agregar marca de agua automáticamente", value=auto_scheduler.config.get("auto_watermark", True))
+            auto_resize = st.checkbox("Redimensionar automáticamente", value=auto_scheduler.config.get("auto_resize", True))
+            preferred_format = st.selectbox("Formato preferido", 
+                                          ["9:16 (Stories/Reels)", "1:1 (Square)", "4:5 (Portrait)"],
+                                          index=0)
+        
+        with col2:
+            st.write("**Horarios de Publicación**")
+            st.write("*Lunes a Viernes:*")
+            morning_start = st.time_input("Inicio mañana", value=datetime.strptime("07:00", "%H:%M").time())
+            morning_end = st.time_input("Fin mañana", value=datetime.strptime("09:00", "%H:%M").time())
+            evening_start = st.time_input("Inicio tarde", value=datetime.strptime("18:00", "%H:%M").time())
+            evening_end = st.time_input("Fin tarde", value=datetime.strptime("21:00", "%H:%M").time())
+            
+            st.write("*Fines de Semana:*")
+            weekend_start = st.time_input("Inicio", value=datetime.strptime("10:00", "%H:%M").time())
+            weekend_end = st.time_input("Fin", value=datetime.strptime("13:00", "%H:%M").time())
+        
+        if st.form_submit_button("💾 Guardar Configuración"):
+            # Actualizar configuración
+            auto_scheduler.config.update({
+                "watermark_text": watermark_text,
+                "auto_watermark": auto_watermark,
+                "auto_resize": auto_resize,
+                "preferred_format": preferred_format,
+                "weekday_slots": {
+                    "morning": {"start": morning_start.strftime("%H:%M"), "end": morning_end.strftime("%H:%M")},
+                    "evening": {"start": evening_start.strftime("%H:%M"), "end": evening_end.strftime("%H:%M")}
+                },
+                "weekend_slots": {
+                    "midday": {"start": weekend_start.strftime("%H:%M"), "end": weekend_end.strftime("%H:%M")}
+                }
+            })
+            
+            auto_scheduler.save_config()
+            
+            # Reprogramar si está activo
+            if auto_scheduler.is_running:
+                auto_scheduler.schedule_daily_posts()
+            
+            st.success("Configuración guardada!")
+    
+    # Próximas publicaciones programadas
+    st.subheader("Próximas Publicaciones")
+    next_times = auto_scheduler.get_next_scheduled_times()
+    
+    if next_times:
+        for i, schedule_info in enumerate(next_times[:5]):
+            st.write(f"📅 **Publicación {i+1}:** {schedule_info['next_run']}")
+    else:
+        st.info("No hay publicaciones programadas. Inicia el bot para programar automáticamente.")
+    
+    # Cola de publicación
+    st.subheader("Cola de Publicación")
+    queue = auto_scheduler.get_publish_queue()
+    
+    if queue:
+        for i, video_entry in enumerate(queue):
+            video_name = os.path.basename(video_entry['video_path'])
+            processed_time = video_entry['processed_at'][:19].replace('T', ' ')
+            
+            col1, col2, col3 = st.columns([3, 2, 1])
+            
+            with col1:
+                st.write(f"**{i+1}. {video_name}**")
+            
+            with col2:
+                st.caption(f"Procesado: {processed_time}")
+            
+            with col3:
+                if st.button("🗑️", key=f"remove_queue_{i}"):
+                    queue.pop(i)
+                    # Guardar cola actualizada
+                    with open("config/publish_queue.json", 'w') as f:
+                        import json
+                        json.dump(queue, f, indent=2)
+                    st.rerun()
+    else:
+        st.info("No hay videos en la cola de publicación.")
+    
+    # Instrucciones
+    with st.expander("📖 Cómo funciona el Bot"):
+        st.markdown("""
+        **El bot automático funciona así:**
+        
+        1. **Selección inteligente**: Busca videos en la carpeta 'pending' que contengan palabras relacionadas con lujo
+        2. **Procesamiento automático**: Agrega marca de agua y redimensiona según tu configuración
+        3. **Programación**: Publica 2 videos por día en horarios aleatorios dentro de tus slots configurados
+        4. **Gestión de archivos**: Mueve automáticamente los videos procesados a 'published'
+        
+        **Horarios configurados:**
+        - **Lunes a Viernes**: 2 videos (mañana 7-9am, tarde 6-9pm)
+        - **Sábados y Domingos**: 1 video (mediodía 10am-1pm)
+        
+        **Palabras clave para selección automática:**
+        luxury, lujo, rich, wealth, expensive, mansion, supercar, yacht, dubai, monaco, millionaire, billionaire, lifestyle, exclusive, premium
+        """)
 
 def show_instagram_stats():
     st.header("📊 Instagram Account Statistics")

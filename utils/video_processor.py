@@ -1,9 +1,15 @@
-import cv2
-import numpy as np
-from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 import os
 from pathlib import Path
 import tempfile
+import subprocess
+try:
+    import cv2
+    import numpy as np
+    from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+    DEPS_AVAILABLE = True
+except ImportError:
+    DEPS_AVAILABLE = False
+    print("Video processing dependencies not available. Install moviepy and opencv-python.")
 
 class VideoProcessor:
     def __init__(self):
@@ -11,6 +17,16 @@ class VideoProcessor:
     
     def get_video_info(self, video_path):
         """Get basic information about a video file"""
+        if not DEPS_AVAILABLE:
+            file_size = os.path.getsize(video_path) / (1024 * 1024)
+            return {
+                'duration': 'Unknown',
+                'width': 'Unknown', 
+                'height': 'Unknown',
+                'fps': 'Unknown',
+                'size': round(file_size, 2)
+            }
+        
         try:
             clip = VideoFileClip(video_path)
             file_size = os.path.getsize(video_path) / (1024 * 1024)  # MB
@@ -34,6 +50,14 @@ class VideoProcessor:
                      watermark_position="bottom-right", resize=False, aspect_ratio=None, 
                      quality="Medium"):
         """Process a video with watermark and/or resize"""
+        if not DEPS_AVAILABLE:
+            # Fallback: just copy file to processed folder
+            output_filename = f"processed_{os.path.basename(input_path)}"
+            output_path = os.path.join("videos/processed", output_filename)
+            import shutil
+            shutil.copy2(input_path, output_path)
+            return output_path
+        
         try:
             # Load video
             clip = VideoFileClip(input_path)
