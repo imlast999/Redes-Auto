@@ -8,6 +8,7 @@ import json
 
 from utils.video_processor import VideoProcessor
 from utils.instagram_api import InstagramAPI
+from utils.instagram_publisher import InstagramPublisher
 from utils.file_manager import FileManager
 from utils.scheduler import AutoScheduler
 from config.settings import SETTINGS
@@ -15,6 +16,7 @@ from config.settings import SETTINGS
 # Initialize components
 video_processor = VideoProcessor()
 instagram_api = InstagramAPI()
+instagram_publisher = InstagramPublisher()
 file_manager = FileManager()
 auto_scheduler = AutoScheduler()
 
@@ -34,7 +36,7 @@ def main():
         st.header("Navigation")
         page = st.selectbox(
             "Select Page",
-            ["Dashboard", "Upload Videos", "Process Videos", "Manage Library", "Auto Scheduler", "Instagram Stats", "Settings"]
+            ["Dashboard", "Upload Videos", "Process Videos", "Manage Library", "Auto Scheduler", "Instagram Publisher", "Instagram Stats", "Settings"]
         )
     
     if page == "Dashboard":
@@ -47,6 +49,8 @@ def main():
         show_library_page()
     elif page == "Auto Scheduler":
         show_scheduler_page()
+    elif page == "Instagram Publisher":
+        show_publisher_page()
     elif page == "Instagram Stats":
         show_instagram_stats()
     elif page == "Settings":
@@ -503,6 +507,188 @@ def show_scheduler_page():
         **Palabras clave para selección automática:**
         luxury, lujo, rich, wealth, expensive, mansion, supercar, yacht, dubai, monaco, millionaire, billionaire, lifestyle, exclusive, premium
         """)
+
+def show_publisher_page():
+    st.header("📤 Instagram Publisher - Publicación Directa")
+    
+    # Información sobre limitaciones
+    with st.expander("⚠️ LIMITACIONES IMPORTANTES - Lee antes de usar"):
+        st.markdown("""
+        **🚨 La API de Instagram tiene estas limitaciones:**
+        
+        **✅ LO QUE SÍ FUNCIONA:**
+        - Ver estadísticas de tu cuenta
+        - Obtener información de posts existentes
+        - Gestionar contenido ya publicado
+        
+        **❌ LO QUE NO FUNCIONA (Limitaciones de Instagram):**
+        - **Publicación automática directa**: Instagram no permite bots que publiquen sin supervisión humana
+        - **Cuentas personales**: Solo funciona con cuentas Business/Creator verificadas
+        - **Aprobación de Meta**: Necesitas aprobación de Meta para publicar automáticamente
+        
+        **🔧 ALTERNATIVAS RECOMENDADAS:**
+        1. **Usar Creator Studio de Meta** - Permite programar publicaciones oficialmente
+        2. **Buffer/Hootsuite** - Servicios especializados con permisos de Meta
+        3. **Publicación manual** - El bot prepara todo, tú publicas manualmente
+        
+        **💡 CÓMO USAR ESTE DASHBOARD:**
+        - El bot procesa y prepara tus videos automáticamente  
+        - Los organiza en horarios optimizados
+        - Tú publicas manualmente cuando sea conveniente
+        """)
+    
+    # Estado de configuración
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        config_status = "🟢 Configurado" if instagram_publisher.is_configured() else "🔴 No configurado"
+        st.metric("Estado API", config_status)
+    
+    with col2:
+        account_info = instagram_publisher.get_account_type()
+        account_type = account_info.get('account_type', 'Desconocido') if account_info else 'N/A'
+        st.metric("Tipo de Cuenta", account_type)
+    
+    with col3:
+        processed_count = len(file_manager.get_processed_videos())
+        st.metric("Videos Listos", processed_count)
+    
+    # Configuración de API
+    st.subheader("Configuración de Instagram API")
+    
+    if not instagram_publisher.is_configured():
+        st.warning("Para usar la publicación directa, necesitas configurar la API de Instagram.")
+        
+        with st.expander("📖 Cómo obtener credenciales de Instagram"):
+            st.markdown("""
+            **Para obtener las credenciales:**
+            
+            1. Ve a [Facebook Developers](https://developers.facebook.com/)
+            2. Crea una aplicación
+            3. Agrega el producto "Instagram Basic Display"
+            4. Configura los permisos necesarios
+            5. Obtén tu Access Token y User ID
+            
+            **NOTA:** Este proceso requiere que tengas una cuenta Business/Creator de Instagram.
+            """)
+        
+        with st.form("instagram_publisher_config"):
+            access_token = st.text_input("Instagram Access Token", type="password")
+            user_id = st.text_input("Instagram User ID")
+            
+            if st.form_submit_button("💾 Guardar Configuración"):
+                if access_token and user_id:
+                    instagram_publisher.configure(access_token, user_id)
+                    st.success("Configuración guardada!")
+                    st.rerun()
+                else:
+                    st.error("Por favor completa ambos campos")
+    
+    else:
+        # Verificar tipo de cuenta
+        account_info = instagram_publisher.get_account_type()
+        
+        if account_info:
+            st.success(f"✅ Conectado como: **{account_info.get('username', 'Unknown')}**")
+            st.info(f"Tipo de cuenta: **{account_info.get('account_type', 'Unknown')}**")
+            
+            if account_info.get('account_type') not in ['BUSINESS', 'CREATOR']:
+                st.warning("⚠️ Tu cuenta no es Business/Creator. La publicación automática no funcionará.")
+        
+        # Publicación manual de videos procesados
+        st.subheader("Publicar Videos Procesados")
+        
+        processed_videos = file_manager.get_processed_videos()
+        
+        if processed_videos:
+            selected_video = st.selectbox(
+                "Seleccionar video para publicar:",
+                processed_videos,
+                format_func=lambda x: os.path.basename(x)
+            )
+            
+            if selected_video:
+                col1, col2 = st.columns([2, 1])
+                
+                with col1:
+                    caption = st.text_area(
+                        "Caption para Instagram:",
+                        placeholder="Escribe aquí la descripción de tu video...\n\n#luxury #lifestyle #wealth",
+                        height=100
+                    )
+                
+                with col2:
+                    st.video(selected_video)
+                    
+                    # Validar video
+                    is_valid, validation_msg = instagram_publisher.validate_video_for_instagram(selected_video)
+                    
+                    if is_valid:
+                        st.success("✅ Video válido para Instagram")
+                    else:
+                        st.error(f"❌ {validation_msg}")
+                
+                # Botones de acción
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    if st.button("📤 Publicar a Instagram", type="primary", disabled=not is_valid):
+                        if caption.strip():
+                            with st.spinner("Publicando video..."):
+                                success, message = instagram_publisher.upload_video_to_instagram(selected_video, caption)
+                            
+                            if success:
+                                st.success(message)
+                                # Mover a publicados
+                                file_manager.move_to_published(selected_video)
+                                st.rerun()
+                            else:
+                                st.error(f"Error: {message}")
+                        else:
+                            st.error("Por favor agrega una descripción")
+                
+                with col2:
+                    if st.button("📁 Mover a Publicados"):
+                        file_manager.move_to_published(selected_video)
+                        st.success("Video movido a publicados")
+                        st.rerun()
+                
+                with col3:
+                    if st.button("🗑️ Eliminar Video"):
+                        file_manager.delete_video(selected_video)
+                        st.success("Video eliminado")
+                        st.rerun()
+        
+        else:
+            st.info("No hay videos procesados disponibles para publicar.")
+            
+            if st.button("🎬 Ir a Procesar Videos"):
+                st.switch_page("Process Videos")
+    
+    # Límites y recomendaciones
+    st.subheader("📋 Límites de Instagram")
+    
+    limits = instagram_publisher.get_publishing_limits()
+    
+    for key, value in limits.items():
+        st.write(f"**{key.replace('_', ' ').title()}:** {value}")
+    
+    # Estadísticas de publicación
+    st.subheader("📊 Estadísticas de Publicación")
+    
+    published_videos = file_manager.get_published_videos()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric("Videos Publicados Hoy", "0")  # Implementar contador real
+        st.metric("Videos Publicados Esta Semana", len(published_videos))
+    
+    with col2:
+        if published_videos:
+            st.write("**Últimos videos publicados:**")
+            for video in published_videos[-3:]:
+                st.write(f"• {os.path.basename(video)}")
 
 def show_instagram_stats():
     st.header("📊 Instagram Account Statistics")

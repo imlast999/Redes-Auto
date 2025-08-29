@@ -83,14 +83,14 @@ exe = EXE(
 )
 '''
     
-    with open('dashboard.spec', 'w') as f:
+    with open('dashboard.spec', 'w', encoding='utf-8') as f:
         f.write(spec_content)
     
     print("✅ Archivo de especificación creado")
 
 def create_launcher_script():
     """Crear script launcher que abre el navegador automáticamente"""
-    launcher_content = '''
+    launcher_content = '''# -*- coding: utf-8 -*-
 import subprocess
 import webbrowser
 import time
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     main()
 '''
     
-    with open('launcher.py', 'w') as f:
+    with open('launcher.py', 'w', encoding='utf-8') as f:
         f.write(launcher_content)
     
     print("✅ Script launcher creado")
