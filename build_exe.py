@@ -20,16 +20,16 @@ def install_pyinstaller():
 
 def create_spec_file():
     """Crear archivo de especificación para PyInstaller"""
-    spec_content = '''
-# -*- mode: python ; coding: utf-8 -*-
+    spec_content = '''# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
 a = Analysis(
-    ['app.py'],
+    ['simple_launcher.py'],
     pathex=[],
     binaries=[],
     datas=[
+        ('app.py', '.'),
         ('utils/', 'utils/'),
         ('config/', 'config/'),
         ('videos/', 'videos/'),
@@ -38,19 +38,22 @@ a = Analysis(
     ],
     hiddenimports=[
         'streamlit',
+        'streamlit.runtime',
+        'streamlit.runtime.scriptrunner',
+        'streamlit.web',
+        'streamlit.web.cli',
         'schedule',
         'pandas',
         'requests',
-        'cv2',
-        'moviepy',
-        'moviepy.editor',
-        'PIL',
-        'numpy',
+        'altair',
+        'plotly',
+        'tornado',
+        'watchdog',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['cv2', 'moviepy'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
@@ -62,24 +65,30 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='Instagram_Video_Dashboard',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='Instagram_Video_Dashboard'
 )
 '''
     
