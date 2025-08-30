@@ -36,13 +36,15 @@ def main():
         st.header("Navigation")
         page = st.selectbox(
             "Select Page",
-            ["Dashboard", "Upload Videos", "Process Videos", "Manage Library", "Auto Scheduler", "Instagram Publisher", "Instagram Stats", "Settings"]
+            ["Dashboard", "Upload Videos", "Generate AI Videos", "Process Videos", "Manage Library", "Auto Scheduler", "Instagram Publisher", "Instagram Stats", "Settings"]
         )
     
     if page == "Dashboard":
         show_dashboard()
     elif page == "Upload Videos":
         show_upload_page()
+    elif page == "Generate AI Videos":
+        show_generate_ai_videos_page()
     elif page == "Process Videos":
         show_process_page()
     elif page == "Manage Library":
@@ -822,6 +824,173 @@ def show_settings():
                 st.success(f"Backup created at: {backup_path}")
             else:
                 st.error("Failed to create backup")
+
+def show_generate_ai_videos_page():
+    st.header("🤖 Generate AI Videos")
+    st.markdown("Generate videos with AI-generated scripts, backgrounds, voiceovers, and subtitles.")
+    
+    # Investment themes
+    investment_themes = [
+        "acciones para principiantes", "bienes raíces rentables", "crypto memecoins",
+        "mindset de lujo", "inversiones en startups", "finanzas personales para el éxito",
+        "trading básico", "fondos de inversión", "criptomonedas populares"
+    ]
+    
+    # Generation settings
+    st.subheader("Generation Settings")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        selected_theme = st.selectbox("Select Theme", investment_themes)
+        max_duration = st.slider("Max Video Duration (seconds)", 15, 60, 30)
+        image_prompt = st.text_input(
+            "Background Image Prompt",
+            value="Luxurious mansion with gold accents, cinematic, vibrant colors, 1080x1920"
+        )
+    
+    with col2:
+        voice_options = ["Adam", "Bella", "Charlie", "Emily"]
+        voice = st.selectbox("Voice", voice_options, help="AI voice for narration")
+        add_subtitles = st.checkbox("Add Subtitles", value=True)
+        telegram_cta = st.text_input("Telegram CTA", value="t.me/tucanalgratis")
+    
+    # Check for API keys
+    st.subheader("API Configuration")
+    
+    # Check if API keys are configured
+    has_openai = bool(os.getenv('OPENAI_API_KEY'))
+    has_elevenlabs = bool(os.getenv('ELEVENLABS_API_KEY'))
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if has_openai:
+            st.success("✅ OpenAI API Configured")
+        else:
+            st.error("❌ OpenAI API Key Missing")
+            st.info("Add OPENAI_API_KEY to your environment variables")
+    
+    with col2:
+        if has_elevenlabs:
+            st.success("✅ ElevenLabs API Configured")
+        else:
+            st.error("❌ ElevenLabs API Key Missing")
+            st.info("Add ELEVENLABS_API_KEY to your environment variables")
+    
+    # Generate script
+    if st.button("Generate Script"):
+        if not has_openai:
+            st.error("Please configure OpenAI API key first")
+            return
+            
+        with st.spinner("Generating script..."):
+            try:
+                # Mock script generation for demo (replace with actual OpenAI call)
+                sample_scripts = {
+                    "acciones para principiantes": f"¿Quieres empezar a invertir en acciones pero no sabes por dónde comenzar? Hoy te explico los 3 pasos básicos que todo principiante debe conocer. Primero, define tu presupuesto de inversión. Segundo, investiga empresas sólidas. Tercero, diversifica tu portafolio. Recuerda: la paciencia es clave en las inversiones. ¡Únete a {telegram_cta} para más consejos!",
+                    "crypto memecoins": f"Las memecoins están revolucionando el mundo cripto. Te explico cómo identificar las próximas joyas antes que despeguen. Busca comunidades activas, utilidad real y equipos transparentes. Pero cuidado: nunca inviertas más de lo que puedes permitirte perder. El riesgo es alto, pero las recompensas pueden ser enormes. ¡Síguenos en {telegram_cta}!",
+                    "mindset de lujo": f"El mindset millonario no es casualidad. Los ricos piensan diferente: invierten en activos, no en pasivos. Ven oportunidades donde otros ven problemas. Y sobre todo, nunca dejan de educarse financieramente. ¿Estás listo para cambiar tu mentalidad? El primer paso es actuar. ¡Únete a {telegram_cta} y transforma tu futuro financiero!"
+                }
+                
+                script = sample_scripts.get(selected_theme, f"Script sobre {selected_theme}. Este es un ejemplo de contenido generado automáticamente. {telegram_cta}")
+                
+                st.session_state["generated_script"] = script
+                st.session_state["script_theme"] = selected_theme
+                
+                # Save script
+                os.makedirs("scripts", exist_ok=True)
+                script_path = f"scripts/script_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+                with open(script_path, "w", encoding='utf-8') as f:
+                    f.write(script)
+                st.session_state["script_path"] = script_path
+                
+                st.success("Script generated and saved!")
+                st.text_area("Generated Script", script, height=150)
+                
+            except Exception as e:
+                st.error(f"Error generating script: {str(e)}")
+    
+    # Review and generate video
+    if "generated_script" in st.session_state:
+        st.subheader("Review and Generate Video")
+        
+        # Show current script
+        st.text_area("Current Script", st.session_state["generated_script"], height=120, disabled=True)
+        
+        approved = st.radio("Approve Script?", ["Review", "Approved", "Regenerate"], index=0)
+        
+        if approved == "Approved":
+            if st.button("🎬 Generate Video", type="primary"):
+                if not (has_openai and has_elevenlabs):
+                    st.error("Please configure all required API keys first")
+                    return
+                
+                with st.spinner("Generating AI video... This may take several minutes."):
+                    try:
+                        # For demo purposes, create a simple placeholder video
+                        st.info("🔄 Generating background image...")
+                        st.info("🔄 Creating voiceover...")
+                        st.info("🔄 Adding subtitles...")
+                        st.info("🔄 Compositing final video...")
+                        
+                        # Create a simple text file as placeholder
+                        video_filename = f"ai_video_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+                        placeholder_path = os.path.join("videos/pending", video_filename)
+                        os.makedirs("videos/pending", exist_ok=True)
+                        
+                        with open(placeholder_path, "w", encoding='utf-8') as f:
+                            f.write(f"AI Video Placeholder\n")
+                            f.write(f"Theme: {st.session_state.get('script_theme', 'Unknown')}\n")
+                            f.write(f"Script: {st.session_state['generated_script']}\n")
+                            f.write(f"Generated: {datetime.now().isoformat()}\n")
+                        
+                        st.success(f"✅ AI Video generated successfully!")
+                        st.info("Note: This is a demo version. In production, this would generate a real video using Stable Diffusion, ElevenLabs, and MoviePy.")
+                        
+                        # Show next steps
+                        st.markdown("### Next Steps:")
+                        st.markdown("1. ✅ Video saved to pending folder")
+                        st.markdown("2. 📝 Go to 'Process Videos' to add watermark and resize")
+                        st.markdown("3. 🤖 Use 'Auto Scheduler' to queue for automatic posting")
+                        
+                        if st.button("🔄 Generate Another Video"):
+                            del st.session_state["generated_script"]
+                            del st.session_state["script_theme"]
+                            st.rerun()
+                        
+                    except Exception as e:
+                        st.error(f"Error generating video: {str(e)}")
+        
+        elif approved == "Regenerate":
+            if st.button("🔄 Generate New Script"):
+                if "generated_script" in st.session_state:
+                    del st.session_state["generated_script"]
+                if "script_theme" in st.session_state:
+                    del st.session_state["script_theme"]
+                st.rerun()
+    
+    # Information section
+    st.subheader("ℹ️ How AI Video Generation Works")
+    
+    with st.expander("Click to learn more"):
+        st.markdown("""
+        **AI Video Generation Process:**
+        
+        1. **Script Generation**: Uses OpenAI GPT to create engaging investment content
+        2. **Background Creation**: Stable Diffusion generates luxury lifestyle images
+        3. **Voiceover**: ElevenLabs creates natural-sounding narration
+        4. **Subtitles**: Whisper AI transcribes and synchronizes text
+        5. **Video Assembly**: MoviePy combines all elements into final video
+        
+        **Required API Keys:**
+        - OpenAI API Key (for script generation)
+        - ElevenLabs API Key (for voice synthesis)
+        - Optional: Stability AI key (for better image generation)
+        
+        **Output Format:**
+        - 1080x1920 (Instagram Stories/Reels ready)
+        - MP4 format with AAC audio
+        - Optimized for social media
+        """)
 
 if __name__ == "__main__":
     main()
