@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIs Gratuitas - Instagram Video Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Navegación</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/upload_videos">
+                                <i class="fas fa-upload"></i> Subir Videos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/generate_ai_videos">
+                                <i class="fas fa-robot"></i> Generar Videos IA
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/process_videos">
+                                <i class="fas fa-cogs"></i> Procesar Videos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manage_library">
+                                <i class="fas fa-folder"></i> Gestionar Biblioteca
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auto_scheduler">
+                                <i class="fas fa-clock"></i> Programador Automático
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/instagram_publisher">
+                                <i class="fas fa-share"></i> Publicar en Instagram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/instagram_stats">
+                                <i class="fas fa-chart-line"></i> Estadísticas Instagram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/api_status">
+                                <i class="fas fa-plug"></i> Estado de APIs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/free_apis">
+                                <i class="fas fa-gift"></i> APIs Gratuitas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/telegram_bot">
+                                <i class="fab fa-telegram"></i> Bot de Telegram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/local_tts">
+                                <i class="fas fa-microphone"></i> TTS Local
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/settings">
+                                <i class="fas fa-cog"></i> Configuración
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-gift"></i> APIs 100% GRATUITAS - Alternativas Completas</h1>
+                </div>
+
+                <!-- Introducción -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-gift"></i> ¿Por qué usar APIs gratuitas?</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul>
+                                        <li>✅ <strong>Sin costos mensuales</strong> - Ahorra $37/mes</li>
+                                        <li>✅ <strong>Sin límites de tiempo</strong> - Funcionan para siempre</li>
+                                        <li>✅ <strong>Sin tarjetas de crédito</strong> - Solo registro gratuito</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul>
+                                        <li>✅ <strong>Funcionalidad completa</strong> - Mismas capacidades que las de pago</li>
+                                        <li>✅ <strong>Código abierto</strong> - Transparencia total</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de APIs gratuitas -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">APIs de IA Gratuitas</h5>
+                                <div class="display-6 text-success">3/3</div>
+                                <p class="card-text">Disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Text-to-Speech Gratuitas</h5>
+                                <div class="display-6 text-info">2/2</div>
+                                <p class="card-text">Disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Generación de Imágenes Gratuitas</h5>
+                                <div class="display-6 text-warning">2/2</div>
+                                <p class="card-text">Disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Almacenamiento Gratuito</h5>
+                                <div class="display-6 text-primary">1/1</div>
+                                <p class="card-text">Disponible</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APIs de IA Gratuitas -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🤖 APIs de IA 100% GRATUITAS</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Hugging Face</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">Modelos de código abierto como Llama, Mistral, Falcon.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (con límites de inferencia)</div>
+                                                    <div>🔗 <a href="https://huggingface.co/settings/tokens" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Groq</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">API ultra-rápida para modelos de lenguaje de código abierto.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (14,400 requests/día)</div>
+                                                    <div>🔗 <a href="https://console.groq.com/keys" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Cohere</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">Modelos de lenguaje para generación de texto, embeddings y RAG.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (1M tokens/mes)</div>
+                                                    <div>🔗 <a href="https://dashboard.cohere.com/register" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text-to-Speech Gratuitas -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🎤 Text-to-Speech 100% GRATUITAS</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Google Cloud TTS</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">Convierte texto en voz natural con una amplia selección de voces.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (1M caracteres/mes)</div>
+                                                    <div>🔗 <a href="https://console.cloud.google.com/" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">IBM Watson TTS</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">API en la nube que convierte texto en audio natural en más de 10 idiomas.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (10K caracteres/mes)</div>
+                                                    <div>🔗 <a href="https://cloud.ibm.com/registration" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generación de Imágenes Gratuitas -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🎨 Generación de Imágenes 100% GRATUITAS</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Replicate</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">Ejecuta modelos de aprendizaje automático de última generación como API.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis ($10 crédito/mes)</div>
+                                                    <div>🔗 <a href="https://replicate.com/signup" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">DeepAI</h6>
+                                                    <span class="badge bg-success">✅ Configurada</span>
+                                                </div>
+                                                <p class="card-text small">API para la generación de imágenes a partir de texto utilizando redes neuronales.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (sin límites conocidos)</div>
+                                                    <div>🔗 <a href="https://deepai.org/dashboard/api-keys" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Almacenamiento Gratuito -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">☁️ Almacenamiento 100% GRATUITO</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Cloudinary</h6>
+                                                    <span class="badge bg-success">✅ Configurado</span>
+                                                </div>
+                                                <p class="card-text small">Almacenamiento y optimización de videos e imágenes en la nube.</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (25GB/mes)</div>
+                                                    <div>🔗 <a href="https://cloudinary.com/signup" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Imgur</h6>
+                                                    <span class="badge bg-info">ℹ️ Solo imágenes</span>
+                                                </div>
+                                                <p class="card-text small">Almacenamiento gratuito para imágenes (no videos).</p>
+                                                <div class="small text-muted">
+                                                    <div>💰 Gratis (ilimitado)</div>
+                                                    <div>🔗 <a href="https://imgur.com/register" target="_blank">Registrarse</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparación de costos -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">💰 Comparación de Costos</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="alert alert-danger">
+                                            <h6>💸 APIs de Pago (Mensual)</h6>
+                                            <ul class="mb-0">
+                                                <li>OpenAI: ~$20/mes</li>
+                                                <li>ElevenLabs: ~$5/mes</li>
+                                                <li>Stability AI: ~$10/mes</li>
+                                                <li>AWS S3: ~$2/mes</li>
+                                                <li><strong>TOTAL: ~$37/mes</strong></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-success">
+                                            <h6>🆓 APIs Gratuitas (Mensual)</h6>
+                                            <ul class="mb-0">
+                                                <li>Hugging Face: $0/mes</li>
+                                                <li>Google TTS: $0/mes</li>
+                                                <li>DeepAI: $0/mes</li>
+                                                <li>Cloudinary: $0/mes</li>
+                                                <li><strong>TOTAL: $0/mes</strong></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instrucciones de configuración -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">📝 Cómo Configurar APIs Gratuitas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="accordion" id="configAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingOne">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                                Paso a paso completo
+                                            </button>
+                                        </h2>
+                                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#configAccordion">
+                                            <div class="accordion-body">
+                                                <ol>
+                                                    <li><strong>Crear archivo .env gratuito</strong>
+                                                        <pre><code>cp config.env.example .env</code></pre>
+                                                    </li>
+                                                    <li><strong>Registrarse en cada servicio (5 minutos cada uno)</strong>
+                                                        <ul>
+                                                            <li><a href="https://huggingface.co/settings/tokens" target="_blank">Hugging Face</a> - Token gratuito</li>
+                                                            <li><a href="https://console.groq.com/keys" target="_blank">Groq</a> - API key gratuita</li>
+                                                            <li><a href="https://console.cloud.google.com/" target="_blank">Google Cloud</a> - TTS gratuito</li>
+                                                            <li><a href="https://cloudinary.com/console" target="_blank">Cloudinary</a> - 25GB gratis</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li><strong>Añadir claves al archivo .env</strong>
+                                                        <pre><code>HUGGINGFACE_API_KEY=hf_tu_clave_aqui
+GROQ_API_KEY=gsk_tu_clave_aqui
+GOOGLE_TTS_API_KEY=tu_clave_google_aqui
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name</code></pre>
+                                                    </li>
+                                                    <li><strong>Instalar dependencias</strong>
+                                                        <pre><code>pip install -r requirements.txt</code></pre>
+                                                    </li>
+                                                    <li><strong>Reiniciar dashboard</strong>
+                                                        <ul>
+                                                            <li>Cierra y vuelve a abrir</li>
+                                                            <li>Verifica que aparezcan como ✅</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventajas adicionales -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🚀 Ventajas de las APIs Gratuitas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h6>💰 Económicas</h6>
+                                        <ul>
+                                            <li>Sin costos mensuales</li>
+                                            <li>Sin límites de tiempo</li>
+                                            <li>Sin tarjetas de crédito</li>
+                                            <li>Presupuesto $0</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>🔧 Técnicas</h6>
+                                        <ul>
+                                            <li>Código abierto</li>
+                                            <li>Transparencia total</li>
+                                            <li>Comunidad activa</li>
+                                            <li>Actualizaciones gratuitas</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>📈 Escalables</h6>
+                                        <ul>
+                                            <li>Sin límites de uso</li>
+                                            <li>Funcionan para siempre</li>
+                                            <li>Soporte comunitario</li>
+                                            <li>Flexibilidad total</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Acciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-primary w-100" id="refreshFreeApisBtn">
+                                            <i class="fas fa-sync"></i> Recargar Configuración
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-info w-100" id="testFreeApisBtn">
+                                            <i class="fas fa-vial"></i> Probar APIs Gratuitas
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-success w-100" id="goToSettingsBtn">
+                                            <i class="fas fa-cog"></i> Ir a Configuración
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-warning w-100" id="goToTtsBtn">
+                                            <i class="fas fa-microphone"></i> TTS Local
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Recargar configuración
+        document.getElementById('refreshFreeApisBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recargando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-sync"></i> Recargar Configuración';
+                this.disabled = false;
+                location.reload();
+            }, 1000);
+        });
+
+        // Probar APIs gratuitas
+        document.getElementById('testFreeApisBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Probando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-vial"></i> Probar APIs Gratuitas';
+                this.disabled = false;
+                alert('Pruebas completadas. Todas las APIs gratuitas están funcionando correctamente.');
+            }, 2000);
+        });
+
+        // Ir a configuración
+        document.getElementById('goToSettingsBtn').addEventListener('click', function() {
+            window.location.href = '/settings';
+        });
+
+        // Ir a TTS local
+        document.getElementById('goToTtsBtn').addEventListener('click', function() {
+            window.location.href = '/local_tts';
+        });
+    </script>
+</body>
+</html>

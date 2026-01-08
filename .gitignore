@@ -1,0 +1,142 @@
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Entorno virtual
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Archivos generados
+generated/
+uploads/
+videos/
+static/uploads/
+*.mp4
+*.mp3
+*.wav
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Archivos de backup
+*.bak
+*.backup
+*_backup.*
+*_fixed.*
+
+# Archivos de prueba
+test_*.mp4
+test_*.jpg
+test_*.png
+test_*.mp3
+
+# Archivos de configuración local
+config.local.py
+settings.local.py
+
+# Archivos de base de datos
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de cache
+.cache/
+.pytest_cache/
+
+# Archivos de documentación generados
+docs/_build/
+
+# Archivos de cobertura
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Archivos de Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos de mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Archivos específicos del proyecto
+chromedriver*
+geckodriver*
+*.crx
+
+# Archivos grandes
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# Archivos de Instagram/redes sociales
+instagram_session.json
+cookies.json
+session_data/
+
+# Archivos locales de Replit y otros IDEs
+.local/
+.replit
+.upm/
+.breakpoints
+replit.nix

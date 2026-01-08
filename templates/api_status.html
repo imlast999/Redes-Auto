@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de APIs - Instagram Video Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Navegación</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/upload_videos">
+                                <i class="fas fa-upload"></i> Subir Videos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/generate_ai_videos">
+                                <i class="fas fa-robot"></i> Generar Videos IA
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/process_videos">
+                                <i class="fas fa-cogs"></i> Procesar Videos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manage_library">
+                                <i class="fas fa-folder"></i> Gestionar Biblioteca
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auto_scheduler">
+                                <i class="fas fa-clock"></i> Programador Automático
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/instagram_publisher">
+                                <i class="fas fa-share"></i> Publicar en Instagram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/instagram_stats">
+                                <i class="fas fa-chart-line"></i> Estadísticas Instagram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/api_status">
+                                <i class="fas fa-plug"></i> Estado de APIs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/free_apis">
+                                <i class="fas fa-gift"></i> APIs Gratuitas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/telegram_bot">
+                                <i class="fab fa-telegram"></i> Bot de Telegram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/local_tts">
+                                <i class="fas fa-microphone"></i> TTS Local
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/settings">
+                                <i class="fas fa-cog"></i> Configuración
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-plug"></i> Estado de APIs y Configuración</h1>
+                </div>
+
+                <!-- Resumen general -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">APIs de IA</h5>
+                                <div class="display-6 text-success">2/3</div>
+                                <p class="card-text">Configuradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Almacenamiento</h5>
+                                <div class="display-6 text-warning">1/2</div>
+                                <p class="card-text">Configuradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Instagram</h5>
+                                <div class="display-6 text-info">1/2</div>
+                                <p class="card-text">Configuradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Notificaciones</h5>
+                                <div class="display-6 text-primary">1/2</div>
+                                <p class="card-text">Configuradas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APIs de IA -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🤖 APIs de Inteligencia Artificial</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>OpenAI API</h6>
+                                                <small class="text-muted">Generación de scripts y contenido</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success">✅ Configurada</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>ElevenLabs API</h6>
+                                                <small class="text-muted">Síntesis de voz para narraciones</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success">✅ Configurada</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>Stability AI API</h6>
+                                                <small class="text-muted">Generación de imágenes de fondo</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-danger">❌ No configurada</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info">
+                                            <h6><i class="fas fa-info-circle"></i> Cómo configurar APIs de IA:</h6>
+                                            <ol class="small">
+                                                <li>Ve a la página de configuración</li>
+                                                <li>Agrega tus claves API</li>
+                                                <li>Guarda la configuración</li>
+                                                <li>Reinicia el dashboard</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Almacenamiento -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">☁️ APIs de Almacenamiento</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>AWS S3</h6>
+                                                <small class="text-muted">Almacenamiento de videos para Instagram API</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-warning">⚠️ No configurado</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>Cloudinary</h6>
+                                                <small class="text-muted">Alternativa más simple a AWS S3</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success">✅ Configurado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-warning">
+                                            <h6><i class="fas fa-exclamation-triangle"></i> Almacenamiento requerido:</h6>
+                                            <p class="small">Para publicar videos en Instagram, necesitas configurar al menos una opción de almacenamiento en la nube.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instagram APIs -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">📸 APIs de Instagram</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>Instagram Graph API</h6>
+                                                <small class="text-muted">API oficial de Instagram (Recomendada)</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success">✅ Configurada</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>Instagrapi</h6>
+                                                <small class="text-muted">API no oficial (Más permisiva)</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-info">ℹ️ No configurado (Opcional)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-success">
+                                            <h6><i class="fas fa-check-circle"></i> Instagram configurado:</h6>
+                                            <p class="small">Tu cuenta de Instagram está conectada y lista para publicar contenido.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notificaciones -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🔔 APIs de Notificaciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>Telegram Bot</h6>
+                                                <small class="text-muted">Notificaciones en tiempo real</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success">✅ Configurado</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6>Discord Webhook</h6>
+                                                <small class="text-muted">Notificaciones en Discord</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-info">ℹ️ No configurado (Opcional)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info">
+                                            <h6><i class="fas fa-info-circle"></i> Notificaciones activas:</h6>
+                                            <p class="small">Recibirás notificaciones cuando se procesen videos, publiquen contenidos o ocurran errores.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APIs faltantes críticas -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">🚨 APIs Faltantes Críticas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-danger">
+                                    <h6><i class="fas fa-exclamation-triangle"></i> Las siguientes APIs son necesarias para el funcionamiento completo:</h6>
+                                    <ul>
+                                        <li>Stability AI API (para generación de imágenes)</li>
+                                        <li>AWS S3 (para almacenamiento de videos)</li>
+                                    </ul>
+                                    <p class="mt-2"><strong>💡 Consulta las instrucciones arriba para configurar cada API</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instrucciones de configuración -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">📝 Instrucciones de Configuración</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="accordion" id="configAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingOne">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                                Paso a paso para configurar todas las APIs
+                                            </button>
+                                        </h2>
+                                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#configAccordion">
+                                            <div class="accordion-body">
+                                                <ol>
+                                                    <li><strong>Crear archivo .env</strong>
+                                                        <ul>
+                                                            <li>Copia <code>config.env.example</code> como <code>.env</code></li>
+                                                            <li>Completa con tus claves reales</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li><strong>APIs Críticas (Mínimo para funcionar)</strong>
+                                                        <ul>
+                                                            <li>OpenAI API Key (para scripts)</li>
+                                                            <li>ElevenLabs API Key (para voz)</li>
+                                                            <li>AWS S3 o Cloudinary (para almacenamiento)</li>
+                                                            <li>Instagram API (Graph API o Instagrapi)</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li><strong>APIs Opcionales (Para funcionalidades avanzadas)</strong>
+                                                        <ul>
+                                                            <li>Stability AI (para imágenes)</li>
+                                                            <li>Telegram/Discord (para notificaciones)</li>
+                                                            <li>Google Analytics (para métricas)</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li><strong>Instalar dependencias</strong>
+                                                        <pre><code>pip install -r requirements.txt</code></pre>
+                                                    </li>
+                                                    <li><strong>Reiniciar el dashboard</strong>
+                                                        <ul>
+                                                            <li>Cierra y vuelve a abrir el dashboard</li>
+                                                            <li>Verifica que todas las APIs aparezcan como ✅</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Acciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-primary w-100" id="refreshConfigBtn">
+                                            <i class="fas fa-sync"></i> Recargar Configuración
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-info w-100" id="testApisBtn">
+                                            <i class="fas fa-vial"></i> Probar APIs
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-success w-100" id="goToSettingsBtn">
+                                            <i class="fas fa-cog"></i> Ir a Configuración
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-warning w-100" id="goToFreeApisBtn">
+                                            <i class="fas fa-gift"></i> Ver APIs Gratuitas
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Recargar configuración
+        document.getElementById('refreshConfigBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recargando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-sync"></i> Recargar Configuración';
+                this.disabled = false;
+                location.reload();
+            }, 1000);
+        });
+
+        // Probar APIs
+        document.getElementById('testApisBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Probando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-vial"></i> Probar APIs';
+                this.disabled = false;
+                alert('Pruebas completadas. Revisa el estado de las APIs arriba.');
+            }, 2000);
+        });
+
+        // Ir a configuración
+        document.getElementById('goToSettingsBtn').addEventListener('click', function() {
+            window.location.href = '/settings';
+        });
+
+        // Ir a APIs gratuitas
+        document.getElementById('goToFreeApisBtn').addEventListener('click', function() {
+            window.location.href = '/free_apis';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas Instagram - Instagram Video Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Navegación</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/upload_videos">
+                                <i class="fas fa-upload"></i> Subir Videos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/generate_ai_videos">
+                                <i class="fas fa-robot"></i> Generar Videos IA
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/process_videos">
+                                <i class="fas fa-cogs"></i> Procesar Videos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manage_library">
+                                <i class="fas fa-folder"></i> Gestionar Biblioteca
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auto_scheduler">
+                                <i class="fas fa-clock"></i> Programador Automático
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/instagram_publisher">
+                                <i class="fas fa-share"></i> Publicar en Instagram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/instagram_stats">
+                                <i class="fas fa-chart-line"></i> Estadísticas Instagram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/api_status">
+                                <i class="fas fa-plug"></i> Estado de APIs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/free_apis">
+                                <i class="fas fa-gift"></i> APIs Gratuitas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/telegram_bot">
+                                <i class="fab fa-telegram"></i> Bot de Telegram
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/local_tts">
+                                <i class="fas fa-microphone"></i> TTS Local
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/settings">
+                                <i class="fas fa-cog"></i> Configuración
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-chart-line"></i> Estadísticas de Instagram</h1>
+                </div>
+
+                <!-- Verificar configuración -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Configuración de Instagram API</h5>
+                            <p>Para ver las estadísticas de tu cuenta de Instagram, necesitas configurar la API de Instagram en la página de configuración.</p>
+                            <a href="/settings" class="btn btn-primary">
+                                <i class="fas fa-cog"></i> Ir a Configuración
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de la cuenta -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Seguidores</h5>
+                                <div class="display-6 text-primary">1,234</div>
+                                <p class="card-text">Total de seguidores</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Siguiendo</h5>
+                                <div class="display-6 text-info">567</div>
+                                <p class="card-text">Cuentas que sigues</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Publicaciones</h5>
+                                <div class="display-6 text-success">89</div>
+                                <p class="card-text">Total de publicaciones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de la cuenta -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Información de la Cuenta</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Datos Básicos:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Username:</strong> @tuusuario</li>
+                                            <li><strong>Tipo de Cuenta:</strong> Business</li>
+                                            <li><strong>Verificada:</strong> Sí</li>
+                                            <li><strong>Biografía:</strong> Emprendedor | Inversor | Mentor</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Estadísticas Adicionales:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Engagement Rate:</strong> 4.2%</li>
+                                            <li><strong>Alcance Promedio:</strong> 2,500</li>
+                                            <li><strong>Impresiones:</strong> 15,000</li>
+                                            <li><strong>Perfil Visitas:</strong> 3,200</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts Recientes -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Posts Recientes</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Video de Inversiones</h6>
+                                                    <small class="text-muted">Hace 2 horas</small>
+                                                </div>
+                                                <p class="card-text small">Mindset de lujo y éxito financiero. Te explico los 3 pasos básicos que todo principiante debe conocer...</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <small class="text-muted">Tipo: Video</small>
+                                                    <small class="text-success">245 likes</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Crypto Trading</h6>
+                                                    <small class="text-muted">Hace 1 día</small>
+                                                </div>
+                                                <p class="card-text small">Las memecoins están revolucionando el mundo cripto. Te explico cómo identificar las próximas joyas...</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <small class="text-muted">Tipo: Video</small>
+                                                    <small class="text-success">189 likes</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title">Bienes Raíces</h6>
+                                                    <small class="text-muted">Hace 3 días</small>
+                                                </div>
+                                                <p class="card-text small">Inversiones en bienes raíces rentables. Te muestro las mejores estrategias para empezar...</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <small class="text-muted">Tipo: Video</small>
+                                                    <small class="text-success">312 likes</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos de rendimiento -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Rendimiento de la Cuenta</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Crecimiento de Seguidores (Últimos 30 días)</h6>
+                                        <div class="bg-light p-3 text-center">
+                                            <i class="fas fa-chart-line fa-3x text-primary"></i>
+                                            <p class="mt-2">+234 seguidores</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Engagement por Tipo de Contenido</h6>
+                                        <div class="bg-light p-3 text-center">
+                                            <i class="fas fa-chart-pie fa-3x text-success"></i>
+                                            <p class="mt-2">Videos: 4.2% | Fotos: 2.1%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métricas detalladas -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Métricas Detalladas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Métrica</th>
+                                                <th>Últimos 7 días</th>
+                                                <th>Últimos 30 días</th>
+                                                <th>Cambio</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Alcance</td>
+                                                <td>2,500</td>
+                                                <td>10,000</td>
+                                                <td><span class="text-success">+15%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Impresiones</td>
+                                                <td>5,200</td>
+                                                <td>22,000</td>
+                                                <td><span class="text-success">+8%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Likes</td>
+                                                <td>1,200</td>
+                                                <td>5,800</td>
+                                                <td><span class="text-success">+12%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Comentarios</td>
+                                                <td>89</td>
+                                                <td>456</td>
+                                                <td><span class="text-success">+5%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Guardados</td>
+                                                <td>234</td>
+                                                <td>1,100</td>
+                                                <td><span class="text-success">+22%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Compartidos</td>
+                                                <td>45</td>
+                                                <td>189</td>
+                                                <td><span class="text-success">+18%</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insights por contenido -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Insights por Tipo de Contenido</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <h6>Videos</h6>
+                                            <div class="display-6 text-primary">4.2%</div>
+                                            <p class="text-muted">Engagement Rate</p>
+                                            <div class="small">
+                                                <div>Alcance: 2,500</div>
+                                                <div>Likes: 1,200</div>
+                                                <div>Comentarios: 89</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <h6>Fotos</h6>
+                                            <div class="display-6 text-info">2.1%</div>
+                                            <p class="text-muted">Engagement Rate</p>
+                                            <div class="small">
+                                                <div>Alcance: 1,800</div>
+                                                <div>Likes: 650</div>
+                                                <div>Comentarios: 45</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <h6>Stories</h6>
+                                            <div class="display-6 text-success">3.8%</div>
+                                            <p class="text-muted">Engagement Rate</p>
+                                            <div class="small">
+                                                <div>Alcance: 1,200</div>
+                                                <div>Likes: 320</div>
+                                                <div>Comentarios: 23</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Acciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-primary w-100" id="refreshStatsBtn">
+                                            <i class="fas fa-sync"></i> Actualizar Estadísticas
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-info w-100" id="exportStatsBtn">
+                                            <i class="fas fa-download"></i> Exportar Datos
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-success w-100" id="generateReportBtn">
+                                            <i class="fas fa-chart-bar"></i> Generar Reporte
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-warning w-100" id="schedulePostBtn">
+                                            <i class="fas fa-clock"></i> Programar Post
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Actualizar estadísticas
+        document.getElementById('refreshStatsBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-sync"></i> Actualizar Estadísticas';
+                this.disabled = false;
+                alert('Estadísticas actualizadas exitosamente!');
+            }, 2000);
+        });
+
+        // Exportar datos
+        document.getElementById('exportStatsBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-download"></i> Exportar Datos';
+                this.disabled = false;
+                alert('Datos exportados exitosamente!');
+            }, 1500);
+        });
+
+        // Generar reporte
+        document.getElementById('generateReportBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-chart-bar"></i> Generar Reporte';
+                this.disabled = false;
+                alert('Reporte generado exitosamente!');
+            }, 3000);
+        });
+
+        // Programar post
+        document.getElementById('schedulePostBtn').addEventListener('click', function() {
+            window.location.href = '/auto_scheduler';
+        });
+    </script>
+</body>
+</html>

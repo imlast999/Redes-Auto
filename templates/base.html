@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Instagram Video Dashboard{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #2c3e50;
+            --sidebar-width: 250px;
+        }
+
+        body { 
+            background: var(--primary-gradient); 
+            min-height: 100vh; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--dark-bg);
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .sidebar-header h4 {
+            margin: 0;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .nav-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-section-title {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.8) !important;
+            padding: 0.75rem 1rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+            border-left-color: #667eea;
+        }
+
+        .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white !important;
+            border-left-color: #667eea;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            color: white;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-right: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-gradient-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .card-gradient-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .card-gradient-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .card-gradient-info {
+            background: var(--info-gradient);
+            color: white;
+        }
+
+        /* Buttons */
+        .btn-gradient-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+        }
+
+        .btn-gradient-success {
+            background: var(--success-gradient);
+            border: none;
+            color: white;
+        }
+
+        .btn-gradient-warning {
+            background: var(--warning-gradient);
+            border: none;
+            color: white;
+        }
+
+        .btn-gradient-info {
+            background: var(--info-gradient);
+            border: none;
+            color: white;
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-available {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-unavailable {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Custom scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-video"></i> LuxReels Dashboard</h4>
+        </div>
+        
+        <!-- Navegación Principal -->
+        <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a class="nav-link {% if request.endpoint == 'generate_ai_videos' %}active{% endif %}" href="/generate_ai_videos">
+                <i class="fas fa-magic"></i> Generar Videos IA
+            </a>
+        </div>
+
+        <!-- Gestión de Contenido -->
+        <div class="nav-section">
+            <div class="nav-section-title">Contenido</div>
+            <a class="nav-link {% if request.endpoint == 'upload_videos' %}active{% endif %}" href="/upload_videos">
+                <i class="fas fa-upload"></i> Subir Videos
+            </a>
+            <a class="nav-link {% if request.endpoint == 'process_videos' %}active{% endif %}" href="/process_videos">
+                <i class="fas fa-cogs"></i> Procesar Videos
+            </a>
+            <a class="nav-link {% if request.endpoint == 'manage_library' %}active{% endif %}" href="/manage_library">
+                <i class="fas fa-folder"></i> Biblioteca
+            </a>
+        </div>
+
+        <!-- Automatización -->
+        <div class="nav-section">
+            <div class="nav-section-title">Automatización</div>
+            <a class="nav-link {% if request.endpoint == 'auto_scheduler' %}active{% endif %}" href="/auto_scheduler">
+                <i class="fas fa-clock"></i> Programador
+            </a>
+            <a class="nav-link {% if request.endpoint == 'instagram_publisher' %}active{% endif %}" href="/instagram_publisher">
+                <i class="fab fa-instagram"></i> Publicar Instagram
+            </a>
+        </div>
+
+        <!-- Herramientas -->
+        <div class="nav-section">
+            <div class="nav-section-title">Herramientas</div>
+            <a class="nav-link {% if request.endpoint == 'local_tts' %}active{% endif %}" href="/local_tts">
+                <i class="fas fa-microphone"></i> Text-to-Speech
+            </a>
+            <a class="nav-link {% if request.endpoint == 'telegram_bot' %}active{% endif %}" href="/telegram_bot">
+                <i class="fab fa-telegram"></i> Bot Telegram
+            </a>
+        </div>
+
+        <!-- Configuración -->
+        <div class="nav-section">
+            <div class="nav-section-title">Sistema</div>
+            <a class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}" href="/settings">
+                <i class="fas fa-cog"></i> Configuración
+            </a>
+            <a class="nav-link" href="/api/diagnose" target="_blank">
+                <i class="fas fa-stethoscope"></i> Diagnóstico
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h2>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="me-3">
+                    <i class="fas fa-clock"></i> 
+                    {{ datetime.now().strftime('%d/%m/%Y %H:%M') if datetime else '' }}
+                </span>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user"></i> Usuario
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog"></i> Configuración</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/api/diagnose" target="_blank"><i class="fas fa-info-circle"></i> Estado del Sistema</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
+            <!-- Alerts -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Main Content Block -->
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            // Toggle sidebar on mobile
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                        sidebar.classList.remove('show');
+                    }
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show');
+                }
+            });
+
+            // Add fade-in animation to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in');
+                }, index * 100);
+            });
+        });
+
+        // Auto-refresh functionality for real-time updates
+        function refreshPageData() {
+            // This can be customized per page
+            if (typeof updatePageData === 'function') {
+                updatePageData();
+            }
+        }
+
+        // Refresh every 30 seconds
+        setInterval(refreshPageData, 30000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

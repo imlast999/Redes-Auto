@@ -166,9 +166,7 @@ class FileManager:
         activity = []
         
         for folder_name, folder_path in self.folders.items():
-            videos = self._get_videos_in_folder(folder_path)
-            
-            for video in videos[:limit]:
+            for video in self._get_videos_in_folder(folder_path):
                 try:
                     stat = os.stat(video)
                     activity.append({
@@ -181,7 +179,6 @@ class FileManager:
                 except:
                     continue
         
-        # Sort by modification time
         activity.sort(key=lambda x: x['modified'], reverse=True)
         return activity[:limit]
     
@@ -262,13 +259,7 @@ class FileManager:
         
         for folder_name, folder_path in self.folders.items():
             videos = self._get_videos_in_folder(folder_path)
-            total_size = 0
-            
-            for video in videos:
-                try:
-                    total_size += os.path.getsize(video)
-                except:
-                    continue
+            total_size = sum(os.path.getsize(v) for v in videos if os.path.exists(v))
             
             stats[folder_name] = {
                 'count': len(videos),

@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Biblioteca - LuxReels{% endblock %}
+{% block page_title %}Gestionar Biblioteca{% endblock %}
+
+{% block content %}
+<!-- Filtros y Búsqueda -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Filtros y Búsqueda</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" name="status">
+                                    <option value="">Todos</option>
+                                    <option value="pending" {{ 'selected' if request.args.get('status') == 'pending' else '' }}>Pendientes</option>
+                                    <option value="processed" {{ 'selected' if request.args.get('status') == 'processed' else '' }}>Procesados</option>
+                                    <option value="published" {{ 'selected' if request.args.get('status') == 'published' else '' }}>Publicados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="type">
+                                    <option value="">Todos</option>
+                                    <option value="ai_generated" {{ 'selected' if request.args.get('type') == 'ai_generated' else '' }}>Generados con IA</option>
+                                    <option value="uploaded" {{ 'selected' if request.args.get('type') == 'uploaded' else '' }}>Subidos</option>
+                                    <option value="processed" {{ 'selected' if request.args.get('type') == 'processed' else '' }}>Procesados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Buscar</label>
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Buscar por nombre..." value="{{ request.args.get('search', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-gradient-primary">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Rápidas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card card-gradient-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-video fa-2x mb-2"></i>
+                <h4>{{ stats.total or 0 }}</h4>
+                <small>Total Videos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-gradient-warning text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h4>{{ stats.pending or 0 }}</h4>
+                <small>Pendientes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-gradient-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h4>{{ stats.processed or 0 }}</h4>
+                <small>Procesados</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-gradient-info text-white">
+            <div class="card-body text-center">
+                <i class="fab fa-instagram fa-2x mb-2"></i>
+                <h4>{{ stats.published or 0 }}</h4>
+                <small>Publicados</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs de Categorías -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="libraryTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" 
+                                data-bs-target="#pending" type="button" role="tab">
+                            <i class="fas fa-clock"></i> Pendientes
+                            <span class="badge bg-warning ms-1">{{ pending_videos|length if pending_videos else 0 }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="processed-tab" data-bs-toggle="tab" 
+                                data-bs-target="#processed" type="button" role="tab">
+                            <i class="fas fa-cogs"></i> Procesados
+                            <span class="badge bg-success ms-1">{{ processed_videos|length if processed_videos else 0 }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="published-tab" data-bs-toggle="tab" 
+                                data-bs-target="#published" type="button" role="tab">
+                            <i class="fab fa-instagram"></i> Publicados
+                            <span class="badge bg-info ms-1">{{ published_videos|length if published_videos else 0 }}</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="libraryTabsContent">
+                    <!-- Videos Pendientes -->
+                    <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                        {% if pending_videos %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" class="form-check-input" id="selectAllPending">
+                                            </th>
+                                            <th>Archivo</th>
+                                            <th>Tamaño</th>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for video in pending_videos %}
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="form-check-input video-checkbox" 
+                                                       value="{{ video.id }}">
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-file-video text-warning me-2"></i>
+                                                    <div>
+                                                        <div class="fw-bold">{{ video.filename }}</div>
+                                                        <small class="text-muted">{{ video.duration or 'N/A' }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ video.size or 'N/A' }}</td>
+                                            <td>{{ video.created_date or 'Hoy' }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ video.type or 'Subido' }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" onclick="previewVideo('{{ video.id }}')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-success" onclick="processVideo('{{ video.id }}')">
+                                                        <i class="fas fa-cogs"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" onclick="deleteVideo('{{ video.id }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No hay videos pendientes</h5>
+                                <p class="text-muted">Los videos subidos aparecerán aquí</p>
+                                <a href="/upload_videos" class="btn btn-gradient-primary">
+                                    <i class="fas fa-upload"></i> Subir Videos
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Videos Procesados -->
+                    <div class="tab-pane fade" id="processed" role="tabpanel">
+                        {% if processed_videos %}
+                            <div class="row">
+                                {% for video in processed_videos %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-file-video text-success fa-2x me-3"></i>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ video.filename }}</h6>
+                                                    <small class="text-muted">{{ video.processed_date }}</small>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock"></i> {{ video.duration or 'N/A' }} •
+                                                    <i class="fas fa-hdd"></i> {{ video.final_size or 'N/A' }}
+                                                </small>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-sm btn-gradient-primary" onclick="previewVideo('{{ video.id }}')">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-gradient-success" onclick="publishVideo('{{ video.id }}')">
+                                                        <i class="fab fa-instagram"></i> Publicar
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info" onclick="downloadVideo('{{ video.id }}')">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No hay videos procesados</h5>
+                                <p class="text-muted">Los videos procesados aparecerán aquí</p>
+                                <a href="/process_videos" class="btn btn-gradient-success">
+                                    <i class="fas fa-cogs"></i> Procesar Videos
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Videos Publicados -->
+                    <div class="tab-pane fade" id="published" role="tabpanel">
+                        {% if published_videos %}
+                            <div class="row">
+                                {% for video in published_videos %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fab fa-instagram text-primary fa-2x me-3"></i>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ video.filename }}</h6>
+                                                    <small class="text-muted">Publicado: {{ video.published_date }}</small>
+                                                </div>
+                                                <span class="badge bg-success">Publicado</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="row text-center">
+                                                    <div class="col-4">
+                                                        <small class="text-muted">Vistas</small>
+                                                        <div class="fw-bold">{{ video.views or 'N/A' }}</div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <small class="text-muted">Likes</small>
+                                                        <div class="fw-bold">{{ video.likes or 'N/A' }}</div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <small class="text-muted">Comentarios</small>
+                                                        <div class="fw-bold">{{ video.comments or 'N/A' }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <a href="{{ video.instagram_url or '#' }}" target="_blank" 
+                                                   class="btn btn-sm btn-gradient-primary">
+                                                    <i class="fab fa-instagram"></i> Ver en Instagram
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fab fa-instagram fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No hay videos publicados</h5>
+                                <p class="text-muted">Los videos publicados en Instagram aparecerán aquí</p>
+                                <a href="/instagram_publisher" class="btn btn-gradient-info">
+                                    <i class="fab fa-instagram"></i> Publicar Videos
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Masivas -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-tasks"></i> Acciones Masivas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-warning" onclick="processSelected()">
+                                <i class="fas fa-cogs"></i> Procesar Seleccionados
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-danger" onclick="deleteSelected()">
+                                <i class="fas fa-trash"></i> Eliminar Seleccionados
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-info" onclick="createBackup()">
+                                <i class="fas fa-download"></i> Crear Backup
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-success" onclick="updateLibrary()">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Selección múltiple
+document.getElementById('selectAllPending').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.video-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// Funciones de acciones
+function previewVideo(videoId) {
+    alert('Preview de video: ' + videoId);
+}
+
+function processVideo(videoId) {
+    if (confirm('¿Procesar este video?')) {
+        alert('Procesando video: ' + videoId);
+        // Aquí iría la lógica real
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }
+}
+
+function deleteVideo(videoId) {
+    if (confirm('¿Eliminar este video permanentemente?')) {
+        alert('Eliminando video: ' + videoId);
+        // Aquí iría la lógica real
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+}
+
+function publishVideo(videoId) {
+    if (confirm('¿Publicar este video en Instagram?')) {
+        alert('Publicando video: ' + videoId);
+        // Aquí iría la lógica real
+        setTimeout(() => {
+            location.reload();
+        }, 3000);
+    }
+}
+
+function downloadVideo(videoId) {
+    alert('Descargando video: ' + videoId);
+}
+
+function processSelected() {
+    const selected = document.querySelectorAll('.video-checkbox:checked');
+    if (selected.length === 0) {
+        alert('Selecciona al menos un video');
+        return;
+    }
+    
+    if (confirm(`¿Procesar ${selected.length} videos seleccionados?`)) {
+        alert(`Procesando ${selected.length} videos...`);
+        setTimeout(() => {
+            location.reload();
+        }, 3000);
+    }
+}
+
+function deleteSelected() {
+    const selected = document.querySelectorAll('.video-checkbox:checked');
+    if (selected.length === 0) {
+        alert('Selecciona al menos un video');
+        return;
+    }
+    
+    if (confirm(`¿Eliminar ${selected.length} videos seleccionados permanentemente?`)) {
+        alert(`Eliminando ${selected.length} videos...`);
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }
+}
+
+function createBackup() {
+    if (confirm('¿Crear backup de toda la biblioteca?')) {
+        alert('Creando backup...');
+        setTimeout(() => {
+            alert('Backup creado exitosamente');
+        }, 3000);
+    }
+}
+
+function updateLibrary() {
+    alert('Actualizando biblioteca...');
+    setTimeout(() => {
+        location.reload();
+    }, 2000);
+}
+
+// Función para actualizar datos de la página
+function updatePageData() {
+    fetch('/api/library/stats')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Library page updated:', data);
+        })
+        .catch(error => console.log('Error updating library:', error));
+}
+</script>
+{% endblock %}

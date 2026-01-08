@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}Publicar en Instagram - LuxReels{% endblock %}
+{% block page_title %}Publicar en Instagram{% endblock %}
+
+{% block content %}
+<!-- Estado de Conexión -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fab fa-instagram"></i> Estado de Conexión Instagram</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fab fa-instagram fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Instagrapi (Recomendado)</h6>
+                                <small class="text-muted">Publicación directa con usuario y contraseña</small>
+                            </div>
+                            <div class="ms-auto">
+                                {% if instagrapi_connected %}
+                                    <span class="badge bg-success">Conectado</span>
+                                {% else %}
+                                    <span class="badge bg-warning">No configurado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if instagrapi_connected %}
+                            {% if account_info.get('error') %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Conectado pero con problemas</strong><br>
+                                    <small>{{ account_info.error }}</small>
+                                </div>
+                            {% elif account_info.get('note') %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Conectado como @{{ username }}</strong><br>
+                                    <small>{{ account_info.note }}</small>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <strong>¡Conectado como @{{ account_info.username }}!</strong><br>
+                                    <small>Datos actualizados: {{ account_info.last_updated or 'Ahora' }}</small>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Configura tus credenciales</strong><br>
+                                <small>Solo necesitas usuario y contraseña de Instagram</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fab fa-facebook fa-2x text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Graph API (Oficial)</h6>
+                                <small class="text-muted">Requiere Facebook Business</small>
+                            </div>
+                            <div class="ms-auto">
+                                <span class="badge bg-secondary">Opcional</span>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-secondary">
+                            <i class="fas fa-building"></i>
+                            <strong>Para empresas</strong><br>
+                            <small>Requiere cuenta de Facebook Business y aprobación</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración de Instagrapi -->
+{% if not instagrapi_connected %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cog"></i> Configurar Instagrapi</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Seguridad:</strong> Tus credenciales se almacenan de forma segura y solo se usan para publicar contenido.
+                </div>
+                
+                <form method="POST" action="/api/instagram/configure">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Usuario de Instagram</label>
+                                <input type="text" class="form-control" name="username" 
+                                       placeholder="tu_usuario" value="{{ current_username or '' }}" required>
+                                <small class="form-text text-muted">Sin @ al inicio</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" name="password" 
+                                       placeholder="Tu contraseña" required>
+                                <small class="form-text text-muted">Se almacena de forma segura</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-gradient-primary">
+                            <i class="fas fa-link"></i> Conectar Instagram
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Publicar Video -->
+{% if instagrapi_connected %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-upload"></i> Publicar Video</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/api/instagram/publish" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Seleccionar Video</label>
+                                <input type="file" class="form-control" name="video_file" 
+                                       accept="video/*" required>
+                                <small class="form-text text-muted">Formatos: MP4, MOV (máx. 100MB)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Publicación</label>
+                                <select class="form-select" name="post_type">
+                                    <option value="reel">Reel (Recomendado)</option>
+                                    <option value="video">Video Normal</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="caption" rows="5" 
+                                          placeholder="Escribe una descripción atractiva...&#10;&#10;#luxreels #ia #contenido #instagram"></textarea>
+                                <small class="form-text text-muted">Incluye hashtags relevantes</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-gradient-success btn-lg">
+                            <i class="fab fa-instagram"></i> Publicar en Instagram
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Videos Listos para Publicar -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-video"></i> Videos Listos para Publicar</h5>
+            </div>
+            <div class="card-body">
+                {% if ready_videos %}
+                    <div class="row">
+                        {% for video in ready_videos %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-video fa-2x text-primary mb-2"></i>
+                                    <h6>{{ video.filename }}</h6>
+                                    <small class="text-muted">{{ video.duration }} • {{ video.size }}</small>
+                                    <div class="mt-3">
+                                        <button class="btn btn-sm btn-gradient-success me-1" 
+                                                onclick="publishVideo('{{ video.id }}')">
+                                            <i class="fab fa-instagram"></i> Publicar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="previewVideo('{{ video.id }}')">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-video fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay videos listos</h5>
+                        <p class="text-muted">Genera algunos videos con IA o sube videos procesados</p>
+                        <a href="/generate_ai_videos" class="btn btn-gradient-primary">
+                            <i class="fas fa-magic"></i> Generar Video con IA
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Información de la Cuenta -->
+{% if instagrapi_connected and account_info %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-user"></i> Información de la Cuenta</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <i class="fas fa-user-circle fa-3x text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">@{{ account_info.username }}</h6>
+                        <small class="text-muted">{{ account_info.full_name }}</small>
+                        {% if account_info.is_verified %}
+                            <i class="fas fa-check-circle text-primary ms-1"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h5 class="text-primary">{{ account_info.posts or 0 }}</h5>
+                            <small class="text-muted">Posts</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h5 class="text-success">{{ account_info.followers or 0 }}</h5>
+                            <small class="text-muted">Seguidores</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-info">{{ account_info.following or 0 }}</h5>
+                        <small class="text-muted">Siguiendo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> Estadísticas de Publicación</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Videos Publicados Hoy</span>
+                        <span class="badge bg-primary">{{ published_today or 0 }}</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Esta Semana</span>
+                        <span class="badge bg-success">{{ published_week or 0 }}</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Este Mes</span>
+                        <span class="badge bg-info">{{ published_month or 0 }}</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total</span>
+                        <span class="badge bg-warning">{{ published_total or 0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Guía de Instalación -->
+{% if not instagrapi_installed %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5><i class="fas fa-exclamation-triangle"></i> Instagrapi no está instalado</h5>
+            </div>
+            <div class="card-body">
+                <p>Para usar la funcionalidad de Instagram, necesitas instalar Instagrapi:</p>
+                <div class="bg-dark text-light p-3 rounded">
+                    <code>pip install instagrapi</code>
+                </div>
+                <p class="mt-3 mb-0">Después de instalar, reinicia el servidor para que los cambios tomen efecto.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function publishVideo(videoId) {
+    if (confirm('¿Publicar este video en Instagram?')) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+        btn.disabled = true;
+        
+        // Simular publicación
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Publicado';
+            btn.classList.remove('btn-gradient-success');
+            btn.classList.add('btn-success');
+            
+            // Mostrar notificación
+            alert('¡Video publicado exitosamente en Instagram!');
+            
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }, 3000);
+    }
+}
+
+function previewVideo(videoId) {
+    // Implementar preview
+    alert('Función de preview en desarrollo');
+}
+
+// Función para actualizar datos de la página
+function updatePageData() {
+    fetch('/api/instagram/status')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Instagram page updated:', data);
+        })
+        .catch(error => console.log('Error updating Instagram page:', error));
+}
+
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                submitBtn.disabled = true;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

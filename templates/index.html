@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Principal - LuxReels{% endblock %}
+{% block page_title %}Dashboard Principal{% endblock %}
+
+{% block content %}
+<!-- Métricas Principales -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card card-gradient-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-video fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ total_videos or 0 }}</h3>
+                <p class="mb-0">Videos Procesados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card card-gradient-success">
+            <div class="card-body text-center">
+                <i class="fas fa-robot fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ ai_generated or 0 }}</h3>
+                <p class="mb-0">Videos con IA</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card card-gradient-warning">
+            <div class="card-body text-center">
+                <i class="fab fa-instagram fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ published or 0 }}</h3>
+                <p class="mb-0">Publicados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card card-gradient-info">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h3 class="mb-1">{{ scheduled or 0 }}</h3>
+                <p class="mb-0">Programados</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <a href="/generate_ai_videos" class="btn btn-gradient-success btn-lg">
+                                <i class="fas fa-magic"></i> Generar Video con IA
+                            </a>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Crea videos automáticamente con múltiples imágenes dinámicas</small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <a href="/upload_videos" class="btn btn-gradient-primary btn-lg">
+                                <i class="fas fa-upload"></i> Subir Videos
+                            </a>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Sube y organiza tus videos existentes</small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <a href="/auto_scheduler" class="btn btn-gradient-warning btn-lg">
+                                <i class="fas fa-calendar-alt"></i> Programar Publicación
+                            </a>
+                        </div>
+                        <small class="text-muted mt-2 d-block">Automatiza la publicación de contenido</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estado del Sistema -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cogs"></i> Estado de APIs</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="status-indicator {{ 'status-available' if api_status.script_gen else 'status-unavailable' }}">
+                            <i class="fas fa-{{ 'check' if api_status.script_gen else 'times' }}"></i>
+                            <strong>Scripts IA</strong><br>
+                            <small>{{ 'Disponible' if api_status.script_gen else 'No configurado' }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="status-indicator {{ 'status-available' if api_status.image_gen else 'status-unavailable' }}">
+                            <i class="fas fa-{{ 'check' if api_status.image_gen else 'times' }}"></i>
+                            <strong>Imágenes IA</strong><br>
+                            <small>{{ 'Disponible' if api_status.image_gen else 'No configurado' }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="status-indicator {{ 'status-available' if api_status.tts else 'status-unavailable' }}">
+                            <i class="fas fa-{{ 'check' if api_status.tts else 'times' }}"></i>
+                            <strong>Text-to-Speech</strong><br>
+                            <small>{{ 'Disponible' if api_status.tts else 'No configurado' }}</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="status-indicator {{ 'status-available' if api_status.instagram else 'status-unavailable' }}">
+                            <i class="fas fa-{{ 'check' if api_status.instagram else 'times' }}"></i>
+                            <strong>Instagram</strong><br>
+                            <small>{{ 'Conectado' if api_status.instagram else 'No conectado' }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> Actividad Reciente</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_activity %}
+                    {% for activity in recent_activity %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-{{ activity.icon }} text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">{{ activity.title }}</div>
+                            <small class="text-muted">{{ activity.description }}</small>
+                        </div>
+                        <small class="text-muted">{{ activity.time }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p>No hay actividad reciente</p>
+                        <a href="/generate_ai_videos" class="btn btn-gradient-primary btn-sm">
+                            <i class="fas fa-plus"></i> Crear primer video
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Funcionalidades Destacadas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-star"></i> Funcionalidades Destacadas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-sparkles fa-3x text-success"></i>
+                            </div>
+                            <h6>Generación Dinámica</h6>
+                            <p class="text-muted small">
+                                IA analiza tu guión y genera múltiples imágenes sincronizadas con transiciones suaves
+                            </p>
+                            <a href="/generate_ai_videos" class="btn btn-gradient-success btn-sm">
+                                <i class="fas fa-magic"></i> Probar Ahora
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-robot fa-3x text-primary"></i>
+                            </div>
+                            <h6>APIs Múltiples</h6>
+                            <p class="text-muted small">
+                                Sistema inteligente que rota entre múltiples APIs para máxima confiabilidad
+                            </p>
+                            <a href="/settings" class="btn btn-gradient-primary btn-sm">
+                                <i class="fas fa-cog"></i> Configurar
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-calendar-check fa-3x text-warning"></i>
+                            </div>
+                            <h6>Automatización Total</h6>
+                            <p class="text-muted small">
+                                Programa la creación y publicación automática de contenido las 24/7
+                            </p>
+                            <a href="/auto_scheduler" class="btn btn-gradient-warning btn-sm">
+                                <i class="fas fa-clock"></i> Programar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas de Uso -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Estadísticas de Uso</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="border-end">
+                            <h4 class="text-primary">{{ usage_stats.scripts_generated or 0 }}</h4>
+                            <small class="text-muted">Scripts Generados</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="border-end">
+                            <h4 class="text-success">{{ usage_stats.images_created or 0 }}</h4>
+                            <small class="text-muted">Imágenes Creadas</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="border-end">
+                            <h4 class="text-warning">{{ usage_stats.audio_generated or 0 }}</h4>
+                            <small class="text-muted">Audios Generados</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <h4 class="text-info">{{ usage_stats.videos_completed or 0 }}</h4>
+                        <small class="text-muted">Videos Completados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Versión:</strong> 
+                    <span class="badge bg-primary">v2.0 Dinámico</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Estado:</strong> 
+                    <span class="badge bg-success">Operativo</span>
+                </div>
+                <div class="mb-3">
+                    <strong>APIs Configuradas:</strong> 
+                    <span class="badge bg-info">{{ configured_apis or 0 }}/10</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Última Actualización:</strong><br>
+                    <small class="text-muted">{{ last_update or 'Hoy' }}</small>
+                </div>
+                <div class="d-grid">
+                    <a href="/api/diagnose" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-stethoscope"></i> Diagnóstico Completo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Función para actualizar datos en tiempo real
+function updatePageData() {
+    fetch('/api/dashboard_stats')
+        .then(response => response.json())
+        .then(data => {
+            // Actualizar métricas si es necesario
+            console.log('Dashboard stats updated:', data);
+        })
+        .catch(error => console.log('Error updating dashboard:', error));
+}
+
+// Animaciones adicionales
+document.addEventListener('DOMContentLoaded', function() {
+    // Animar contadores
+    const counters = document.querySelectorAll('h3, h4');
+    counters.forEach(counter => {
+        const target = parseInt(counter.textContent);
+        if (target > 0) {
+            let current = 0;
+            const increment = target / 20;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 50);
+        }
+    });
+});
+</script>
+{% endblock %}

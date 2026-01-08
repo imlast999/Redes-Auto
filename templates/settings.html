@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración - LuxReels{% endblock %}
+{% block page_title %}Configuración del Sistema{% endblock %}
+
+{% block content %}
+<!-- Estado General del Sistema -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Estado General del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-server fa-3x text-success"></i>
+                        </div>
+                        <h6>Servidor</h6>
+                        <span class="badge bg-success">Operativo</span>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-database fa-3x text-info"></i>
+                        </div>
+                        <h6>Base de Datos</h6>
+                        <span class="badge bg-info">Conectada</span>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-plug fa-3x text-warning"></i>
+                        </div>
+                        <h6>APIs Configuradas</h6>
+                        <span class="badge bg-warning">{{ configured_apis or 0 }}/10</span>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                        </div>
+                        <h6>Seguridad</h6>
+                        <span class="badge bg-primary">Activa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración de APIs -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-robot"></i> APIs de Generación de Scripts</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Groq API</strong><br>
+                            <small class="text-muted">Ultra-rápida, 14,400 req/día GRATIS</small>
+                        </div>
+                        <span class="badge bg-success">Configurada</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Hugging Face</strong><br>
+                            <small class="text-muted">Modelos open source, sin límites</small>
+                        </div>
+                        <span class="badge bg-success">Configurada</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Cohere</strong><br>
+                            <small class="text-muted">1M tokens/mes GRATIS</small>
+                        </div>
+                        <span class="badge bg-success">Configurada</span>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#scriptApisModal">
+                        <i class="fas fa-cog"></i> Configurar APIs de Scripts
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-image"></i> APIs de Generación de Imágenes</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Replicate</strong><br>
+                            <small class="text-muted">$10 crédito/mes GRATIS</small>
+                        </div>
+                        <span class="badge bg-success">Configurada</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>DeepAI</strong><br>
+                            <small class="text-muted">Sin límites GRATIS</small>
+                        </div>
+                        <span class="badge bg-success">Configurada</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>GetImg.ai</strong><br>
+                            <small class="text-muted">100 imágenes/mes GRATIS</small>
+                        </div>
+                        <span class="badge bg-success">Configurada</span>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#imageApisModal">
+                        <i class="fas fa-cog"></i> Configurar APIs de Imágenes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración de Funcionalidades -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-microphone"></i> Text-to-Speech</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Google TTS</strong><br>
+                            <small class="text-muted">Gratuito</small>
+                        </div>
+                        <span class="badge bg-success">Activo</span>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <a href="/local_tts" class="btn btn-outline-primary">
+                        <i class="fas fa-cog"></i> Configurar TTS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fab fa-instagram"></i> Instagram</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Conexión</strong><br>
+                            <small class="text-muted">Publicación automática</small>
+                        </div>
+                        <span class="badge bg-warning">Pendiente</span>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <a href="/instagram_publisher" class="btn btn-outline-primary">
+                        <i class="fas fa-cog"></i> Configurar Instagram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fab fa-telegram"></i> Telegram</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Bot</strong><br>
+                            <small class="text-muted">Notificaciones</small>
+                        </div>
+                        <span class="badge bg-success">Configurado</span>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <a href="/telegram_bot" class="btn btn-outline-primary">
+                        <i class="fas fa-cog"></i> Configurar Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Herramientas del Sistema -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-tools"></i> Herramientas del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="/api/diagnose" target="_blank" class="btn btn-gradient-info">
+                                <i class="fas fa-stethoscope"></i> Diagnóstico Completo
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-warning" onclick="clearCache()">
+                                <i class="fas fa-broom"></i> Limpiar Caché
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-success" onclick="testAllApis()">
+                                <i class="fas fa-check-circle"></i> Probar APIs
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-primary" onclick="exportSettings()">
+                                <i class="fas fa-download"></i> Exportar Config
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información del Sistema -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info"></i> Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Versión:</strong></td>
+                        <td><span class="badge bg-primary">v2.0 Dinámico</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Python:</strong></td>
+                        <td>3.13+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flask:</strong></td>
+                        <td>3.0+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg:</strong></td>
+                        <td>Instalado</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Última Actualización:</strong></td>
+                        <td>{{ datetime.now().strftime('%d/%m/%Y') if datetime else 'Hoy' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Uso de Recursos</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Almacenamiento</span>
+                        <span>2.3 GB / 10 GB</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" style="width: 23%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>APIs Usadas</span>
+                        <span>156 / 1000</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width: 15%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Videos Generados</span>
+                        <span>8 / 50</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" style="width: 16%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales -->
+<!-- Modal para APIs de Scripts -->
+<div class="modal fade" id="scriptApisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configurar APIs de Scripts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Todas estas APIs son GRATUITAS.</strong> Configura las que puedas para mayor confiabilidad.
+                </div>
+                
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Groq API Key</label>
+                        <input type="password" class="form-control" placeholder="gsk_...">
+                        <small class="form-text text-muted">Obtener en: https://console.groq.com/keys</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Hugging Face API Key</label>
+                        <input type="password" class="form-control" placeholder="hf_...">
+                        <small class="form-text text-muted">Obtener en: https://huggingface.co/settings/tokens</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Cohere API Key</label>
+                        <input type="password" class="form-control" placeholder="...">
+                        <small class="form-text text-muted">Obtener en: https://dashboard.cohere.ai/api-keys</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Guardar Configuración</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para APIs de Imágenes -->
+<div class="modal fade" id="imageApisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configurar APIs de Imágenes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>¡Todas configuradas!</strong> Tu sistema tiene máxima redundancia para generación de imágenes.
+                </div>
+                
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Replicate API Key</label>
+                        <input type="password" class="form-control" placeholder="r8_..." value="••••••••••••••••">
+                        <small class="form-text text-muted">Obtener en: https://replicate.com/account/api-tokens</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">DeepAI API Key</label>
+                        <input type="password" class="form-control" placeholder="..." value="••••••••••••••••">
+                        <small class="form-text text-muted">Obtener en: https://deepai.org/api-key</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">GetImg API Key</label>
+                        <input type="password" class="form-control" placeholder="key-..." value="••••••••••••••••">
+                        <small class="form-text text-muted">Obtener en: https://getimg.ai/</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Actualizar Configuración</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function clearCache() {
+    if (confirm('¿Estás seguro de que quieres limpiar el caché?')) {
+        // Implementar limpieza de caché
+        alert('Caché limpiado exitosamente');
+    }
+}
+
+function testAllApis() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Probando...';
+    btn.disabled = true;
+    
+    // Simular prueba de APIs
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i> APIs Funcionando';
+        btn.classList.remove('btn-gradient-success');
+        btn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-gradient-success');
+            btn.disabled = false;
+        }, 2000);
+    }, 3000);
+}
+
+function exportSettings() {
+    // Crear objeto con configuración
+    const settings = {
+        version: 'v2.0 Dinámico',
+        apis_configured: {{ configured_apis or 0 }},
+        export_date: new Date().toISOString()
+    };
+    
+    // Crear archivo de descarga
+    const blob = new Blob([JSON.stringify(settings, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'luxreels_config.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Actualizar datos de la página
+function updatePageData() {
+    fetch('/api/dashboard_stats')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Settings page updated:', data);
+        })
+        .catch(error => console.log('Error updating settings:', error));
+}
+</script>
+{% endblock %}

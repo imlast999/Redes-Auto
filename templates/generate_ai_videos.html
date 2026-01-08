@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+
+{% block title %}Generar Videos con IA - LuxReels{% endblock %}
+{% block page_title %}Generar Videos con IA{% endblock %}
+
+{% block content %}
+
+                <!-- Mensajes -->
+                {% if state.message %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ state.message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                {% if state.error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ state.error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <!-- Estado de APIs -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-plug"></i> Estado de APIs de IA</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="api-status {{ 'api-available' if api_status.script_gen else 'api-unavailable' }}">
+                                    <strong>Generación de Scripts:</strong>
+                                    {{ '✅ Disponible' if api_status.script_gen else '❌ No configurado' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="api-status {{ 'api-available' if api_status.tts else 'api-unavailable' }}">
+                                    <strong>Text-to-Speech:</strong>
+                                    {{ '✅ Disponible' if api_status.tts else '❌ No configurado' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="api-status {{ 'api-available' if api_status.image_gen else 'api-unavailable' }}">
+                                    <strong>Generación de Imágenes:</strong>
+                                    {{ '✅ Disponible' if api_status.image_gen else '❌ No configurado' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de Generación -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-magic"></i> Opciones de Generación</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Generación Dinámica (NUEVA) -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6><i class="fas fa-sparkles"></i> Generación Dinámica (NUEVO)</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>🎨 Imágenes múltiples con IA</strong></p>
+                                        <ul class="small">
+                                            <li>✨ Analiza el guión automáticamente</li>
+                                            <li>🖼️ Genera múltiples imágenes sincronizadas</li>
+                                            <li>🎬 Transiciones suaves entre imágenes</li>
+                                            <li>🎯 Conceptos visuales específicos</li>
+                                        </ul>
+                                        <form method="POST" class="mt-3">
+                                            <input type="hidden" name="action" value="generate_dynamic">
+                                            
+                                            <div class="mb-2">
+                                                <label class="form-label small">Tema:</label>
+                                                <select name="theme" class="form-select form-select-sm">
+                                                    <option value="mindset">💎 Mindset de Lujo</option>
+                                                    <option value="investment">💰 Inversiones</option>
+                                                    <option value="crypto">⚡ Criptomonedas</option>
+                                                    <option value="business">🏆 Negocios</option>
+                                                    <option value="lifestyle">✨ Estilo de Vida</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label class="form-label small">Estilo Visual:</label>
+                                                <select name="style" class="form-select form-select-sm">
+                                                    <optgroup label="👥 Personas Realistas (NUEVO)">
+                                                        <option value="luxury_person">💎 Persona de Lujo</option>
+                                                        <option value="business_person">👔 Empresario/a Exitoso/a</option>
+                                                        <option value="crypto_trader">₿ Trader de Crypto</option>
+                                                        <option value="lifestyle_influencer">📸 Influencer Lifestyle</option>
+                                                        <option value="motivation_speaker">🎤 Speaker Motivacional</option>
+                                                    </optgroup>
+                                                    <optgroup label="🎨 Estilos Clásicos">
+                                                        <option value="luxury">🏆 Lujo Premium</option>
+                                                        <option value="business">💼 Negocios</option>
+                                                        <option value="crypto">⚡ Criptomonedas</option>
+                                                        <option value="lifestyle">✨ Estilo de Vida</option>
+                                                        <option value="motivation">🔥 Motivacional</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label class="form-label small">Idioma:</label>
+                                                <select name="language" class="form-select form-select-sm">
+                                                    <option value="es">🇪🇸 Español</option>
+                                                    <option value="en">🇺🇸 Inglés</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                                <i class="fas fa-magic"></i> Generar Video Dinámico
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Generación Clásica -->
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6><i class="fas fa-cog"></i> Generación Clásica</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>🎯 Control paso a paso</strong></p>
+                                        <ul class="small">
+                                            <li>📝 Generar guión personalizado</li>
+                                            <li>🎵 Crear audio con TTS</li>
+                                            <li>🖼️ Una imagen de fondo</li>
+                                            <li>⚙️ Control manual de cada paso</li>
+                                        </ul>
+                                        <form method="POST" class="mt-3">
+                                            <input type="hidden" name="action" value="generate_complete">
+                                            
+                                            <div class="mb-2">
+                                                <label class="form-label small">Tema:</label>
+                                                <select name="theme" class="form-select form-select-sm">
+                                                    <option value="mindset">💎 Mindset de Lujo</option>
+                                                    <option value="investment">💰 Inversiones</option>
+                                                    <option value="crypto">⚡ Criptomonedas</option>
+                                                    <option value="business">🏆 Negocios</option>
+                                                    <option value="lifestyle">✨ Estilo de Vida</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label class="form-label small">Estilo:</label>
+                                                <select name="style" class="form-select form-select-sm">
+                                                    <optgroup label="👥 Personas Realistas">
+                                                        <option value="luxury_person">💎 Persona de Lujo</option>
+                                                        <option value="business_person">👔 Empresario/a</option>
+                                                        <option value="crypto_trader">₿ Trader Crypto</option>
+                                                    </optgroup>
+                                                    <optgroup label="🎨 Objetos/Paisajes">
+                                                        <option value="luxury">🏆 Lujo</option>
+                                                        <option value="business">💼 Negocios</option>
+                                                        <option value="crypto">⚡ Crypto</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                <i class="fas fa-play"></i> Generar Video Clásico
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indicador de Pasos -->
+                <div class="step-indicator">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="step {{ 'step-active' if step in ['config', 'script_ready'] else '' }}">
+                                <i class="fas fa-edit fa-2x mb-2"></i>
+                                <h6>1. Configurar</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="step {{ 'step-active' if step in ['script_ready', 'audio_ready'] else '' }}">
+                                <i class="fas fa-microphone fa-2x mb-2"></i>
+                                <h6>2. Generar Audio</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="step {{ 'step-active' if step in ['audio_ready', 'image_ready'] else '' }}">
+                                <i class="fas fa-image fa-2x mb-2"></i>
+                                <h6>3. Generar Imagen</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="step {{ 'step-active' if step == 'complete' else '' }}">
+                                <i class="fas fa-check fa-2x mb-2"></i>
+                                <h6>4. Completado</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados de Generación Dinámica -->
+                {% if state.dynamic_info %}
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-sparkles"></i> Video Dinámico Generado</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6>📊 Estadísticas de Generación:</h6>
+                                <ul>
+                                    <li><strong>Imágenes generadas:</strong> {{ state.dynamic_info.total_images }}</li>
+                                    <li><strong>Conceptos visuales:</strong> {{ state.dynamic_info.visual_concepts }}</li>
+                                    <li><strong>API de análisis:</strong> {{ state.dynamic_info.analysis_api }}</li>
+                                    <li><strong>Tema:</strong> {{ state.theme }}</li>
+                                </ul>
+                                
+                                {% if state.video_file %}
+                                <div class="mt-3">
+                                    <h6>🎬 Video Final:</h6>
+                                    <video controls class="w-100" style="max-height: 400px;">
+                                        <source src="{{ url_for('static', filename='videos/' + state.video_file.split('/')[-1]) }}" type="video/mp4">
+                                        Tu navegador no soporta video HTML5.
+                                    </video>
+                                    <div class="mt-2">
+                                        <a href="{{ url_for('static', filename='videos/' + state.video_file.split('/')[-1]) }}" 
+                                           class="btn btn-primary btn-sm" download>
+                                            <i class="fas fa-download"></i> Descargar Video
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <h6>📝 Script Generado:</h6>
+                                <div class="preview-box" style="max-height: 200px; overflow-y: auto;">
+                                    <small>{{ state.script[:300] }}{% if state.script|length > 300 %}...{% endif %}</small>
+                                </div>
+                                
+                                {% if state.audio_file %}
+                                <div class="mt-3">
+                                    <h6>🎵 Audio:</h6>
+                                    <audio controls class="w-100">
+                                        <source src="{{ url_for('static', filename='audio/' + state.audio_file.split('/')[-1]) }}" type="audio/mpeg">
+                                        Tu navegador no soporta audio HTML5.
+                                    </audio>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <!-- Panel de Configuración -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-cog"></i> Configuración del Video</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST">
+                                    <!-- Generar Script -->
+                                    <div class="mb-4">
+                                        <h6><i class="fas fa-edit"></i> 1. Generar Script con IA</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tema Principal:</label>
+                                            <select name="theme" class="form-select">
+                                                {% for key, theme_info in themes.items() %}
+                                                <option value="{{ key }}" {{ 'selected' if state.theme == key else '' }}>
+                                                    {{ theme_info.name }} - {{ theme_info.description }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Subtema (opcional):</label>
+                                            <input type="text" name="subtema" class="form-control" 
+                                                   placeholder="Ej: Cómo pensar como millonario">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Call to Action:</label>
+                                            <input type="text" name="cta" class="form-control" 
+                                                   value="t.me/tucanalgratis" placeholder="t.me/tucanalgratis">
+                                        </div>
+                                        <button type="submit" name="action" value="generate_script" 
+                                                class="btn btn-primary">
+                                            <i class="fas fa-magic"></i> Generar Script
+                                        </button>
+                                    </div>
+
+                                    <!-- Generar Audio -->
+                                    {% if state.script %}
+                                    <div class="mb-4">
+                                        <h6><i class="fas fa-microphone"></i> 2. Generar Audio</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Idioma:</label>
+                                            <select name="language" class="form-select">
+                                                <option value="es">Español</option>
+                                                <option value="en">English</option>
+                                                <option value="fr">Français</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="script" value="{{ state.script }}">
+                                        <button type="submit" name="action" value="generate_audio" 
+                                                class="btn btn-success">
+                                            <i class="fas fa-volume-up"></i> Generar Audio
+                                        </button>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Generar Imagen -->
+                                    {% if state.script %}
+                                    <div class="mb-4">
+                                        <h6><i class="fas fa-image"></i> 3. Generar Imagen</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Estilo Visual:</label>
+                                            <select name="style" class="form-select">
+                                                <option value="luxury">Lujo y Elegancia</option>
+                                                <option value="business">Negocios y Finanzas</option>
+                                                <option value="crypto">Criptomonedas</option>
+                                                <option value="lifestyle">Estilo de Vida</option>
+                                                <option value="motivation">Motivacional</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="script" value="{{ state.script }}">
+                                        <button type="submit" name="action" value="generate_image" 
+                                                class="btn btn-warning">
+                                            <i class="fas fa-paint-brush"></i> Generar Imagen
+                                        </button>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Generación Completa -->
+                                    <div class="mb-4">
+                                        <h6><i class="fas fa-magic"></i> Generación Completa</h6>
+                                        <p class="text-muted">Genera script, audio e imagen automáticamente</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <select name="theme" class="form-select mb-2">
+                                                    {% for key, theme_info in themes.items() %}
+                                                    <option value="{{ key }}">{{ theme_info.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <select name="language" class="form-select mb-2">
+                                                    <option value="es">Español</option>
+                                                    <option value="en">English</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button type="submit" name="action" value="generate_complete" 
+                                                class="btn btn-primary btn-lg w-100">
+                                            <i class="fas fa-rocket"></i> Generar Todo Automáticamente
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Preview -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-eye"></i> Preview del Contenido</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Script Preview -->
+                                {% if state.script %}
+                                <div class="mb-4">
+                                    <h6><i class="fas fa-file-text"></i> Script Generado:</h6>
+                                    <div class="preview-box">
+                                        <pre style="white-space: pre-wrap; font-family: inherit;">{{ state.script }}</pre>
+                                    </div>
+                                    {% if state.script_file %}
+                                    <small class="text-muted">Guardado en: {{ state.script_file }}</small>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Audio Preview -->
+                                {% if state.audio_file %}
+                                <div class="mb-4">
+                                    <h6><i class="fas fa-volume-up"></i> Audio Generado:</h6>
+                                    <div class="preview-box">
+                                        <audio controls class="w-100">
+                                            <source src="{{ state.audio_file }}" type="audio/mpeg">
+                                            Tu navegador no soporta audio HTML5.
+                                        </audio>
+                                    </div>
+                                    <small class="text-muted">Archivo: {{ state.audio_file }}</small>
+                                </div>
+                                {% endif %}
+
+                                <!-- Image Preview -->
+                                {% if state.image_file %}
+                                <div class="mb-4">
+                                    <h6><i class="fas fa-image"></i> Imagen Generada:</h6>
+                                    <div class="preview-box text-center">
+                                        <img src="{{ state.image_file }}" alt="Imagen generada" 
+                                             class="img-fluid rounded" style="max-height: 300px;">
+                                    </div>
+                                    <small class="text-muted">Archivo: {{ state.image_file }}</small>
+                                </div>
+                                {% endif %}
+
+                                <!-- Estado Inicial -->
+                                {% if not script and not audio_file and not image_file %}
+                                <div class="preview-box text-center text-muted">
+                                    <i class="fas fa-magic fa-3x mb-3"></i>
+                                    <h5>Genera tu contenido con IA</h5>
+                                    <p>Selecciona un tema y genera automáticamente script, audio e imagen para tu video de Instagram.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archivos Guardados -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-file-text"></i> Scripts Recientes</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if saved_scripts %}
+                                    {% for script_info in saved_scripts %}
+                                    <div class="mb-2 p-2 bg-light rounded">
+                                        <small><strong>{{ script_info.filename }}</strong></small><br>
+                                        <small class="text-muted">{{ script_info.preview }}</small>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                <p class="text-muted">No hay scripts guardados</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-volume-up"></i> Audios Recientes</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if saved_audios %}
+                                    {% for audio_info in saved_audios %}
+                                    <div class="mb-2 p-2 bg-light rounded">
+                                        <small><strong>{{ audio_info.filename }}</strong></small><br>
+                                        <small class="text-muted">{{ audio_info.created_at }}</small>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                <p class="text-muted">No hay audios guardados</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-image"></i> Imágenes Recientes</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if saved_images %}
+                                    {% for image_info in saved_images %}
+                                    <div class="mb-2 p-2 bg-light rounded">
+                                        <small><strong>{{ image_info.filename }}</strong></small><br>
+                                        <small class="text-muted">{{ image_info.created_at }}</small>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                <p class="text-muted">No hay imágenes guardadas</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Función para actualizar datos de la página
+function updatePageData() {
+    // Actualizar estado de APIs si es necesario
+    console.log('Updating AI video generation page data');
+}
+
+// Funcionalidad específica de la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Animaciones para las tarjetas de opciones
+    const optionCards = document.querySelectorAll('.card');
+    optionCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('fade-in');
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

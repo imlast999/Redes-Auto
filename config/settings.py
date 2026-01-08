@@ -1,85 +1,90 @@
+# -*- coding: utf-8 -*-
+"""
+Configuración optimizada del Instagram Video Dashboard
+"""
+
 import os
-import json
 from pathlib import Path
 
-# Default settings
+# Rutas del proyecto
+BASE_DIR = Path(__file__).parent.parent
+VIDEOS_DIR = BASE_DIR / "videos"
+CONFIG_DIR = BASE_DIR / "config"
+
+# Directorios de videos
+PENDING_DIR = VIDEOS_DIR / "pending"
+PROCESSED_DIR = VIDEOS_DIR / "processed"
+PUBLISHED_DIR = VIDEOS_DIR / "published"
+
+# Asegurar que los directorios existan
+for directory in [VIDEOS_DIR, CONFIG_DIR, PENDING_DIR, PROCESSED_DIR, PUBLISHED_DIR]:
+    directory.mkdir(exist_ok=True)
+
+# Configuración por defecto
 DEFAULT_SETTINGS = {
     'default_watermark': '@yourusername',
     'default_quality': 'Medium',
     'max_file_size': 100,  # MB
-    'supported_formats': ['.mp4', '.avi', '.mov', '.mkv'],
-    'instagram_post_size': {
-        'stories': (1080, 1920),
-        'square': (1080, 1080),
-        'portrait': (1080, 1350)
-    },
-    'video_bitrates': {
-        'High': '8000k',
-        'Medium': '4000k', 
-        'Low': '2000k'
-    },
-    'watermark_settings': {
-        'font_size': 50,
-        'color': 'white',
-        'stroke_color': 'black',
-        'stroke_width': 2,
-        'margin': 20
-    },
-    'auto_backup': True,
-    'backup_retention_days': 30,
-    'processing_threads': 2
+    'auto_watermark': True,
+    'auto_resize': True,
+    'preferred_format': '9:16 (Stories/Reels)',
+    'watermark_position': 'bottom-right',
+    'video_formats': ['.mp4', '.avi', '.mov', '.mkv'],
+    'luxury_keywords': [
+        'luxury', 'lujo', 'rich', 'wealth', 'expensive', 'mansion', 
+        'supercar', 'yacht', 'dubai', 'monaco', 'millionaire', 
+        'billionaire', 'lifestyle', 'exclusive', 'premium'
+    ]
 }
 
-def load_user_settings():
-    """Load user settings from file"""
-    settings_file = "config/user_settings.json"
-    
-    if os.path.exists(settings_file):
-        try:
-            with open(settings_file, 'r') as f:
-                user_settings = json.load(f)
-                # Merge with defaults
-                settings = DEFAULT_SETTINGS.copy()
-                settings.update(user_settings)
-                return settings
-        except Exception as e:
-            print(f"Error loading user settings: {str(e)}")
-    
-    return DEFAULT_SETTINGS
+# Configuración de horarios
+SCHEDULER_CONFIG = {
+    'enabled': False,
+    'weekday_slots': {
+        'morning': {'start': '07:00', 'end': '09:00'},
+        'evening': {'start': '18:00', 'end': '21:00'}
+    },
+    'weekend_slots': {
+        'midday': {'start': '10:00', 'end': '13:00'}
+    },
+    'posts_per_day': {
+        'weekdays': 2,
+        'weekends': 1
+    }
+}
 
-def save_user_settings(settings):
-    """Save user settings to file"""
-    settings_file = "config/user_settings.json"
-    
-    try:
-        os.makedirs(os.path.dirname(settings_file), exist_ok=True)
-        with open(settings_file, 'w') as f:
-            json.dump(settings, f, indent=2)
-        return True
-    except Exception as e:
-        print(f"Error saving user settings: {str(e)}")
-        return False
+# Configuración de Instagram API
+INSTAGRAM_CONFIG = {
+    'access_token': os.getenv('INSTAGRAM_ACCESS_TOKEN', ''),
+    'user_id': os.getenv('INSTAGRAM_USER_ID', ''),
+    'username': os.getenv('INSTAGRAM_USERNAME', ''),
+    'password': os.getenv('INSTAGRAM_PASSWORD', '')
+}
 
-# Load settings
-SETTINGS = load_user_settings()
+# Configuración de APIs de IA
+AI_CONFIG = {
+    'huggingface_api_key': os.getenv('HUGGINGFACE_API_KEY', ''),
+    'groq_api_key': os.getenv('GROQ_API_KEY', ''),
+    'cohere_api_key': os.getenv('COHERE_API_KEY', ''),
+    'google_tts_api_key': os.getenv('GOOGLE_TTS_API_KEY', ''),
+    'replicate_api_key': os.getenv('REPLICATE_API_KEY', ''),
+    'deepai_api_key': os.getenv('DEEPAI_API_KEY', '')
+}
 
-# Environment variables with fallbacks
-INSTAGRAM_ACCESS_TOKEN = os.getenv('INSTAGRAM_ACCESS_TOKEN', '')
-INSTAGRAM_USER_ID = os.getenv('INSTAGRAM_USER_ID', '')
-INSTAGRAM_CLIENT_SECRET = os.getenv('INSTAGRAM_CLIENT_SECRET', '')
+# Configuración de notificaciones
+NOTIFICATION_CONFIG = {
+    'telegram_bot_token': os.getenv('TELEGRAM_BOT_TOKEN', ''),
+    'telegram_chat_id': os.getenv('TELEGRAM_CHAT_ID', ''),
+    'discord_webhook_url': os.getenv('DISCORD_WEBHOOK_URL', '')
+}
 
-# Paths
-BASE_DIR = Path(__file__).parent.parent
-VIDEOS_DIR = BASE_DIR / "videos"
-ASSETS_DIR = BASE_DIR / "assets"
-CONFIG_DIR = BASE_DIR / "config"
+# Configuración de almacenamiento
+STORAGE_CONFIG = {
+    'cloudinary_url': os.getenv('CLOUDINARY_URL', ''),
+    'aws_access_key_id': os.getenv('AWS_ACCESS_KEY_ID', ''),
+    'aws_secret_access_key': os.getenv('AWS_SECRET_ACCESS_KEY', ''),
+    'aws_s3_bucket': os.getenv('AWS_S3_BUCKET', '')
+}
 
-# Create directories if they don't exist
-VIDEOS_DIR.mkdir(exist_ok=True)
-ASSETS_DIR.mkdir(exist_ok=True)
-CONFIG_DIR.mkdir(exist_ok=True)
-
-(VIDEOS_DIR / "pending").mkdir(exist_ok=True)
-(VIDEOS_DIR / "processed").mkdir(exist_ok=True)
-(VIDEOS_DIR / "published").mkdir(exist_ok=True)
-(ASSETS_DIR / "watermarks").mkdir(exist_ok=True)
+# Configuración global
+SETTINGS = DEFAULT_SETTINGS

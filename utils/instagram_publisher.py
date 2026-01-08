@@ -1,436 +1,416 @@
 # -*- coding: utf-8 -*-
+"""
+Publicador de Instagram completo para Instagram Video Dashboard
+Incluye publicación automática y manual
+"""
+
+import os
 import requests
 import json
-import os
 import time
 from datetime import datetime
-try:
-    from instagrapi import Client
-    INSTAGRAPI_AVAILABLE = True
-except ImportError:
-    INSTAGRAPI_AVAILABLE = False
-    print("Instagrapi not available. Install with: pip install instagrapi")
+from typing import Optional, Dict, Tuple
+import tempfile
+import shutil
 
 class InstagramPublisher:
     def __init__(self):
+        # Instagram Graph API
         self.access_token = os.getenv('INSTAGRAM_ACCESS_TOKEN', '')
         self.user_id = os.getenv('INSTAGRAM_USER_ID', '')
-        self.base_url = "https://graph.facebook.com/v18.0"
-        self.config_file = "config/instagram_publisher.json"
+        self.graph_api_base = 'https://graph.instagram.com'
         
-        # Instagrapi configuration
+        # Instagrapi
         self.username = os.getenv('INSTAGRAM_USERNAME', '')
         self.password = os.getenv('INSTAGRAM_PASSWORD', '')
-        self.client = None
-        self.use_instagrapi = INSTAGRAPI_AVAILABLE and self.username and self.password
         
-        self.load_config()
-    
-    def load_config(self):
-        """Cargar configuración del publicador"""
-        try:
-            if os.path.exists(self.config_file):
-                with open(self.config_file, 'r') as f:
-                    config = json.load(f)
-                    self.access_token = config.get('access_token', self.access_token)
-                    self.user_id = config.get('user_id', self.user_id)
-        except Exception as e:
-            print(f"Error loading publisher config: {str(e)}")
-    
-    def configure(self, access_token, user_id):
-        """Configurar credenciales de Instagram"""
-        self.access_token = access_token
-        self.user_id = user_id
+        # Estado de configuración
+        self.configured = False
+        self.api_type = None
         
+        self._check_configuration()
+    
+    def _check_configuration(self):
+        """Verificar configuración"""
+        if self.access_token and self.user_id:
+            if self._test_graph_api():
+                self.configured = True
+                self.api_type = 'graph_api'
+        elif self.username and self.password:
+            if self._test_instagrapi():
+                self.configured = True
+                self.api_type = 'instagrapi'
+    
+    def _test_graph_api(self):
+        """Probar Graph API"""
         try:
-            os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
+            url = f"{self.graph_api_base}/me"
+            params = {'access_token': self.access_token}
+            response = requests.get(url, params=params, timeout=10)
+            return response.status_code == 200
+        except:
+            return False
+    
+    def _test_instagrapi(self):
+        """Probar Instagrapi"""
+        try:
+            from instagrapi import Client
+            return True
+        except ImportError:
+            return False
+    
+    def is_configured(self):
+        """Verificar si está configurado"""
+        return self.configured
+    
+    def configure(self, access_token=None, user_id=None, username=None, password=None):
+        """Configurar credenciales"""
+        if access_token and user_id:
+            self.access_token = access_token
+            self.user_id = user_id
+            
+            # Guardar en archivo de configuración
             config = {
                 'access_token': access_token,
                 'user_id': user_id,
                 'configured_at': datetime.now().isoformat()
             }
             
-            with open(self.config_file, 'w') as f:
+            os.makedirs('config', exist_ok=True)
+            with open('config/instagram_config.json', 'w') as f:
                 json.dump(config, f, indent=2)
         
-        except Exception as e:
-            print(f"Error saving publisher config: {str(e)}")
-    
-    def is_configured(self):
-        """Verificar si está configurado correctamente"""
-        return bool(self.access_token and self.user_id)
-    
-    def upload_video_to_instagram(self, video_path, caption=""):
-        """
-        Publicar video a Instagram usando Graph API
+        elif username and password:
+            self.username = username
+            self.password = password
         
-        LIMITACIONES IMPORTANTES:
-        - Requiere cuenta Business/Creator verificada
-        - Videos deben ser MP4, duración 3-60 segundos para Reels
-        - Tamaño máximo: 100MB
-        - Aspect ratio recomendado: 9:16 para Reels
-        """
-        if not self.is_configured():
-            return False, "Instagram API no está configurado"
+        self._check_configuration()
+        return self.configured
+    
+    def get_account_type(self):
+        """Obtener tipo de cuenta"""
+        if not self.configured:
+            return None
+        
+        if self.api_type == 'graph_api':
+            return self._get_account_type_graph_api()
+        else:
+            return self._get_account_type_instagrapi()
+    
+    def _get_account_type_graph_api(self):
+        """Obtener tipo de cuenta usando Graph API"""
+        try:
+            url = f"{self.graph_api_base}/{self.user_id}"
+            params = {
+                'fields': 'id,username,account_type',
+                'access_token': self.access_token
+            }
+            
+            response = requests.get(url, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return None
+        
+        except Exception as e:
+            print(f"Error getting account type: {str(e)}")
+            return None
+    
+    def _get_account_type_instagrapi(self):
+        """Obtener tipo de cuenta usando Instagrapi"""
+        try:
+            from instagrapi import Client
+            
+            cl = Client()
+            cl.login(self.username, self.password)
+            
+            user_info = cl.user_info_by_username(self.username)
+            
+            return {
+                'id': str(user_info.pk),
+                'username': user_info.username,
+                'account_type': 'BUSINESS' if user_info.is_business else 'PERSONAL'
+            }
+        
+        except Exception as e:
+            print(f"Error getting account type with Instagrapi: {str(e)}")
+            return None
+    
+    def upload_video_to_instagram(self, video_path, caption="", hashtags=None):
+        """Subir video a Instagram"""
+        if not self.configured:
+            return False, "Instagram no configurado"
         
         if not os.path.exists(video_path):
-            return False, "Archivo de video no encontrado"
+            return False, "Video no encontrado"
         
-        try:
-            # Paso 1: Crear container de media
-            container_response = self._create_video_container(video_path, caption)
-            if not container_response['success']:
-                return False, container_response['message']
-            
-            container_id = container_response['container_id']
-            
-            # Paso 2: Verificar estado del container
-            status_ok = self._wait_for_container_ready(container_id)
-            if not status_ok:
-                return False, "Error en procesamiento del video"
-            
-            # Paso 3: Publicar el container
-            publish_response = self._publish_container(container_id)
-            if publish_response['success']:
-                return True, f"Video publicado exitosamente. ID: {publish_response['media_id']}"
+        # Validar video
+        is_valid, validation_msg = self.validate_video_for_instagram(video_path)
+        if not is_valid:
+            return False, f"Video no válido: {validation_msg}"
+        
+        # Agregar hashtags al caption
+        if hashtags:
+            if isinstance(hashtags, list):
+                hashtags_str = ' '.join([f'#{tag}' if not tag.startswith('#') else tag for tag in hashtags])
             else:
-                return False, publish_response['message']
+                hashtags_str = hashtags
+            
+            caption = f"{caption}\n\n{hashtags_str}"
         
-        except Exception as e:
-            return False, f"Error al publicar: {str(e)}"
+        if self.api_type == 'graph_api':
+            return self._upload_video_graph_api(video_path, caption)
+        else:
+            return self._upload_video_instagrapi(video_path, caption)
     
-    def _create_video_container(self, video_path, caption):
-        """Crear container de video en Instagram"""
+    def _upload_video_graph_api(self, video_path, caption):
+        """Subir video usando Graph API"""
         try:
-            # Subir video a un servicio temporal (necesario para Instagram API)
-            video_url = self._upload_to_temporary_storage(video_path)
-            if not video_url:
-                return {'success': False, 'message': 'Error al subir video temporal'}
+            # Paso 1: Crear contenedor de media
+            url = f"{self.graph_api_base}/{self.user_id}/media"
             
-            url = f"{self.base_url}/{self.user_id}/media"
+            # Subir video a un servicio temporal (esto es una simplificación)
+            # En la práctica, necesitarías subir el video a un servidor accesible públicamente
             
-            params = {
-                'media_type': 'REELS',
-                'video_url': video_url,
+            data = {
+                'media_type': 'VIDEO',
+                'video_url': 'URL_DEL_VIDEO',  # Aquí iría la URL pública del video
                 'caption': caption,
                 'access_token': self.access_token
             }
             
-            response = requests.post(url, data=params)
-            response.raise_for_status()
+            response = requests.post(url, data=data, timeout=60)
             
-            data = response.json()
-            
-            return {
-                'success': True,
-                'container_id': data.get('id'),
-                'message': 'Container creado exitosamente'
-            }
-        
-        except requests.exceptions.RequestException as e:
-            return {'success': False, 'message': f'Error en API: {str(e)}'}
-    
-    def _wait_for_container_ready(self, container_id, timeout=300):
-        """Esperar a que el container esté listo para publicar"""
-        start_time = time.time()
-        
-        while time.time() - start_time < timeout:
-            try:
-                url = f"{self.base_url}/{container_id}"
-                params = {
-                    'fields': 'status_code',
+            if response.status_code == 200:
+                container_id = response.json()['id']
+                
+                # Paso 2: Publicar el contenedor
+                publish_url = f"{self.graph_api_base}/{self.user_id}/media_publish"
+                publish_data = {
+                    'creation_id': container_id,
                     'access_token': self.access_token
                 }
                 
-                response = requests.get(url, params=params)
-                response.raise_for_status()
+                publish_response = requests.post(publish_url, data=publish_data, timeout=60)
                 
-                data = response.json()
-                status = data.get('status_code')
-                
-                if status == 'FINISHED':
-                    return True
-                elif status == 'ERROR':
-                    print(f"Error en container: {data}")
-                    return False
-                
-                # Esperar antes de verificar nuevamente
-                time.sleep(10)
-            
-            except Exception as e:
-                print(f"Error verificando estado: {e}")
-                time.sleep(10)
-        
-        return False
-    
-    def _publish_container(self, container_id):
-        """Publicar el container creado"""
-        try:
-            url = f"{self.base_url}/{self.user_id}/media_publish"
-            
-            params = {
-                'creation_id': container_id,
-                'access_token': self.access_token
-            }
-            
-            response = requests.post(url, data=params)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            return {
-                'success': True,
-                'media_id': data.get('id'),
-                'message': 'Video publicado exitosamente'
-            }
-        
-        except requests.exceptions.RequestException as e:
-            return {'success': False, 'message': f'Error publicando: {str(e)}'}
-    
-    def _upload_to_temporary_storage(self, video_path):
-        """
-        NOTA: Esta función necesita implementación real
-        Instagram requiere que el video esté disponible en una URL pública
-        
-        Opciones:
-        1. Usar servicio como AWS S3, Google Cloud Storage
-        2. Usar servidor temporal propio
-        3. Usar servicio de hosting de archivos
-        """
-        # Por ahora devuelve None - necesita implementación real
-        print("⚠️ Función de almacenamiento temporal no implementada")
-        print("   Se necesita servicio de hosting para videos (AWS S3, etc.)")
-        return None
-    
-    def get_account_type(self):
-        """Verificar tipo de cuenta Instagram"""
-        if not self.is_configured():
-            return None
-        
-        try:
-            url = f"{self.base_url}/{self.user_id}"
-            params = {
-                'fields': 'account_type,username',
-                'access_token': self.access_token
-            }
-            
-            response = requests.get(url, params=params)
-            response.raise_for_status()
-            
-            return response.json()
+                if publish_response.status_code == 200:
+                    return True, "Video publicado exitosamente"
+                else:
+                    return False, f"Error publicando: {publish_response.text}"
+            else:
+                return False, f"Error creando contenedor: {response.text}"
         
         except Exception as e:
-            print(f"Error getting account type: {e}")
-            return None
+            return False, f"Error con Graph API: {str(e)}"
+    
+    def _upload_video_instagrapi(self, video_path, caption):
+        """Subir video usando Instagrapi"""
+        try:
+            from instagrapi import Client
+            
+            cl = Client()
+            cl.login(self.username, self.password)
+            
+            # Subir video
+            media = cl.video_upload(video_path, caption)
+            
+            if media:
+                return True, f"Video publicado exitosamente (ID: {media.pk})"
+            else:
+                return False, "Error desconocido al publicar"
+        
+        except Exception as e:
+            return False, f"Error con Instagrapi: {str(e)}"
+    
+    def upload_image_to_instagram(self, image_path, caption="", hashtags=None):
+        """Subir imagen a Instagram"""
+        if not self.configured:
+            return False, "Instagram no configurado"
+        
+        if not os.path.exists(image_path):
+            return False, "Imagen no encontrada"
+        
+        # Agregar hashtags al caption
+        if hashtags:
+            if isinstance(hashtags, list):
+                hashtags_str = ' '.join([f'#{tag}' if not tag.startswith('#') else tag for tag in hashtags])
+            else:
+                hashtags_str = hashtags
+            
+            caption = f"{caption}\n\n{hashtags_str}"
+        
+        if self.api_type == 'instagrapi':
+            return self._upload_image_instagrapi(image_path, caption)
+        else:
+            return False, "Subida de imágenes solo disponible con Instagrapi"
+    
+    def _upload_image_instagrapi(self, image_path, caption):
+        """Subir imagen usando Instagrapi"""
+        try:
+            from instagrapi import Client
+            
+            cl = Client()
+            cl.login(self.username, self.password)
+            
+            # Subir imagen
+            media = cl.photo_upload(image_path, caption)
+            
+            if media:
+                return True, f"Imagen publicada exitosamente (ID: {media.pk})"
+            else:
+                return False, "Error desconocido al publicar"
+        
+        except Exception as e:
+            return False, f"Error con Instagrapi: {str(e)}"
+    
+    def schedule_post(self, media_path, caption, publish_time):
+        """Programar publicación (simulado)"""
+        # Instagram no permite programación directa via API
+        # Esta función guardaría la información para publicación posterior
+        
+        schedule_data = {
+            'media_path': media_path,
+            'caption': caption,
+            'publish_time': publish_time.isoformat(),
+            'status': 'scheduled',
+            'created_at': datetime.now().isoformat()
+        }
+        
+        # Guardar en archivo de programación
+        os.makedirs('config', exist_ok=True)
+        schedule_file = 'config/scheduled_posts.json'
+        
+        scheduled_posts = []
+        if os.path.exists(schedule_file):
+            with open(schedule_file, 'r') as f:
+                scheduled_posts = json.load(f)
+        
+        scheduled_posts.append(schedule_data)
+        
+        with open(schedule_file, 'w') as f:
+            json.dump(scheduled_posts, f, indent=2)
+        
+        return True, "Post programado exitosamente"
+    
+    def get_scheduled_posts(self):
+        """Obtener posts programados"""
+        schedule_file = 'config/scheduled_posts.json'
+        
+        if os.path.exists(schedule_file):
+            with open(schedule_file, 'r') as f:
+                return json.load(f)
+        
+        return []
     
     def validate_video_for_instagram(self, video_path):
-        """Validar si el video cumple los requisitos de Instagram"""
+        """Validar video para Instagram"""
         if not os.path.exists(video_path):
             return False, "Archivo no encontrado"
         
-        try:
-            # Verificar tamaño
-            file_size = os.path.getsize(video_path) / (1024 * 1024)  # MB
-            if file_size > 100:
-                return False, f"Archivo muy grande: {file_size:.1f}MB (máximo 100MB)"
-            
-            # Verificar extensión
-            if not video_path.lower().endswith(('.mp4', '.mov')):
-                return False, "Formato no soportado. Usar MP4 o MOV"
-            
-            return True, "Video válido para Instagram"
+        # Verificar tamaño
+        file_size = os.path.getsize(video_path) / (1024 * 1024)  # MB
+        if file_size > 100:
+            return False, f"Archivo muy grande: {file_size:.1f}MB (máximo 100MB)"
         
-        except Exception as e:
-            return False, f"Error validando video: {str(e)}"
+        # Verificar extensión
+        valid_extensions = ['.mp4', '.mov']
+        file_ext = os.path.splitext(video_path)[1].lower()
+        if file_ext not in valid_extensions:
+            return False, f"Formato no válido: {file_ext} (usar MP4 o MOV)"
+        
+        return True, "Video válido"
+    
+    def validate_image_for_instagram(self, image_path):
+        """Validar imagen para Instagram"""
+        if not os.path.exists(image_path):
+            return False, "Archivo no encontrado"
+        
+        # Verificar tamaño
+        file_size = os.path.getsize(image_path) / (1024 * 1024)  # MB
+        if file_size > 8:
+            return False, f"Archivo muy grande: {file_size:.1f}MB (máximo 8MB)"
+        
+        # Verificar extensión
+        valid_extensions = ['.jpg', '.jpeg', '.png']
+        file_ext = os.path.splitext(image_path)[1].lower()
+        if file_ext not in valid_extensions:
+            return False, f"Formato no válido: {file_ext} (usar JPG o PNG)"
+        
+        return True, "Imagen válida"
     
     def get_publishing_limits(self):
-        """Obtener límites de publicación de Instagram"""
+        """Obtener límites de publicación"""
         return {
-            'reels_per_day': 'No hay límite oficial, pero se recomienda máximo 1-3 por día',
-            'video_duration': '3-90 segundos para Reels',
-            'video_size': 'Máximo 100MB',
-            'aspect_ratio': '9:16 recomendado para Reels',
-            'formats': 'MP4, MOV',
-            'account_requirements': 'Cuenta Business o Creator verificada'
+            'video_duration_max': '60 segundos (Reels)',
+            'video_size_max': '100 MB',
+            'image_size_max': '8 MB',
+            'caption_length_max': '2,200 caracteres',
+            'hashtags_max': '30 por post',
+            'posts_per_day_recommended': '1-2 posts',
+            'video_formats': 'MP4, MOV',
+            'image_formats': 'JPG, PNG',
+            'aspect_ratios': '1.91:1 a 4:5'
         }
     
-    # INSTAGRAPI METHODS (API No Oficial - Más Permisiva)
-    
-    def configure_instagrapi(self, username, password):
-        """Configurar credenciales para Instagrapi"""
-        self.username = username
-        self.password = password
-        self.use_instagrapi = INSTAGRAPI_AVAILABLE and username and password
-        
-        # Guardar en config
-        try:
-            config = {}
-            if os.path.exists(self.config_file):
-                with open(self.config_file, 'r') as f:
-                    config = json.load(f)
-            
-            config.update({
-                'instagrapi_username': username,
-                'instagrapi_configured': True,
-                'instagrapi_configured_at': datetime.now().isoformat()
-            })
-            
-            os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
-            with open(self.config_file, 'w') as f:
-                json.dump(config, f, indent=2)
-                
-        except Exception as e:
-            print(f"Error saving instagrapi config: {str(e)}")
-    
-    def login_instagrapi(self):
-        """Iniciar sesión con Instagrapi"""
-        if not INSTAGRAPI_AVAILABLE:
-            return False, "Instagrapi no está instalado"
-        
-        if not (self.username and self.password):
-            return False, "Credenciales no configuradas"
-        
-        try:
-            self.client = Client()
-            
-            # Intentar cargar sesión existente
-            session_file = f"config/session_{self.username}.json"
-            if os.path.exists(session_file):
-                try:
-                    self.client.load_settings(session_file)
-                    self.client.login(self.username, self.password)
-                    return True, "Sesión cargada exitosamente"
-                except:
-                    pass  # Si falla, intentar login normal
-            
-            # Login normal
-            self.client.login(self.username, self.password)
-            
-            # Guardar sesión
-            os.makedirs("config", exist_ok=True)
-            self.client.dump_settings(session_file)
-            
-            return True, "Login exitoso con Instagrapi"
-            
-        except Exception as e:
-            return False, f"Error en login: {str(e)}"
-    
-    def upload_reel_instagrapi(self, video_path, caption="", hashtags=None):
-        """Subir Reel usando Instagrapi (más confiable)"""
-        if not self.use_instagrapi:
-            return False, "Instagrapi no configurado"
-        
-        if not self.client:
-            login_success, login_message = self.login_instagrapi()
-            if not login_success:
-                return False, f"Error de login: {login_message}"
-        
-        try:
-            # Preparar caption con hashtags
-            final_caption = caption
-            if hashtags:
-                hashtag_str = " ".join([f"#{tag}" if not tag.startswith('#') else tag for tag in hashtags])
-                final_caption = f"{caption}\n\n{hashtag_str}"
-            
-            # Subir reel
-            media = self.client.clip_upload(
-                video_path,
-                caption=final_caption
-            )
-            
-            return True, f"Reel subido exitosamente. ID: {media.pk}"
-            
-        except Exception as e:
-            return False, f"Error subiendo reel: {str(e)}"
-    
-    def upload_video_post_instagrapi(self, video_path, caption="", hashtags=None):
-        """Subir video post usando Instagrapi"""
-        if not self.use_instagrapi:
-            return False, "Instagrapi no configurado"
-        
-        if not self.client:
-            login_success, login_message = self.login_instagrapi()
-            if not login_success:
-                return False, f"Error de login: {login_message}"
-        
-        try:
-            # Preparar caption con hashtags
-            final_caption = caption
-            if hashtags:
-                hashtag_str = " ".join([f"#{tag}" if not tag.startswith('#') else tag for tag in hashtags])
-                final_caption = f"{caption}\n\n{hashtag_str}"
-            
-            # Subir video
-            media = self.client.video_upload(
-                video_path,
-                caption=final_caption
-            )
-            
-            return True, f"Video subido exitosamente. ID: {media.pk}"
-            
-        except Exception as e:
-            return False, f"Error subiendo video: {str(e)}"
-    
-    def get_account_info_instagrapi(self):
-        """Obtener información de la cuenta usando Instagrapi"""
-        if not self.use_instagrapi:
-            return None
-        
-        if not self.client:
-            login_success, _ = self.login_instagrapi()
-            if not login_success:
-                return None
-        
-        try:
-            user_info = self.client.account_info()
-            return {
-                'username': user_info.username,
-                'full_name': user_info.full_name,
-                'follower_count': user_info.follower_count,
-                'following_count': user_info.following_count,
-                'media_count': user_info.media_count,
-                'is_verified': user_info.is_verified,
-                'is_business': user_info.is_business
-            }
-        except Exception as e:
-            print(f"Error getting account info: {str(e)}")
-            return None
-    
-    def get_available_methods(self):
-        """Obtener métodos disponibles para publicación"""
-        methods = {
-            'graph_api': {
-                'available': self.is_configured(),
-                'description': 'Instagram Graph API (Oficial)',
-                'requirements': 'Cuenta Business/Creator + Access Token',
-                'limitations': 'Requiere hosting externo para videos'
-            },
-            'instagrapi': {
-                'available': self.use_instagrapi,
-                'description': 'Instagrapi (No Oficial)',
-                'requirements': 'Username + Password',
-                'limitations': 'Riesgo de detección como bot'
-            }
+    def get_optimal_hashtags(self, theme):
+        """Obtener hashtags óptimos para un tema"""
+        hashtag_sets = {
+            'luxury': [
+                'luxury', 'lifestyle', 'wealth', 'rich', 'expensive',
+                'millionaire', 'success', 'motivation', 'mindset', 'goals',
+                'entrepreneur', 'business', 'money', 'investment', 'finance'
+            ],
+            'fitness': [
+                'fitness', 'gym', 'workout', 'health', 'fit',
+                'training', 'muscle', 'bodybuilding', 'cardio', 'strength'
+            ],
+            'travel': [
+                'travel', 'vacation', 'adventure', 'explore', 'wanderlust',
+                'trip', 'journey', 'destination', 'tourism', 'holiday'
+            ],
+            'food': [
+                'food', 'foodie', 'delicious', 'yummy', 'cooking',
+                'recipe', 'chef', 'restaurant', 'homemade', 'tasty'
+            ]
         }
-        return methods
+        
+        return hashtag_sets.get(theme, hashtag_sets['luxury'])[:15]  # Máximo 15 hashtags
     
-    def auto_publish_video(self, video_path, caption="", hashtags=None, method="auto"):
-        """Publicar video automáticamente usando el mejor método disponible"""
-        if method == "auto":
-            # Priorizar Instagrapi si está disponible (más confiable)
-            if self.use_instagrapi:
-                method = "instagrapi"
-            elif self.is_configured():
-                method = "graph_api"
-            else:
-                return False, "No hay métodos de publicación configurados"
+    def generate_caption(self, theme, custom_text=""):
+        """Generar caption automático"""
+        caption_templates = {
+            'luxury': [
+                "Vivir la vida que siempre soñaste no es un lujo, es una decisión. 💎",
+                "El éxito no es casualidad, es el resultado de decisiones inteligentes. 🏆",
+                "Mientras otros duermen, los millonarios construyen imperios. 🌟"
+            ],
+            'motivation': [
+                "Tu única competencia eres tú mismo de ayer. 💪",
+                "Los sueños no tienen fecha de caducidad. ✨",
+                "El fracaso es solo una oportunidad para empezar de nuevo con más inteligencia. 🚀"
+            ],
+            'business': [
+                "En el mundo de los negocios, la velocidad mata. ⚡",
+                "No busques oportunidades, créalas. 💼",
+                "El dinero es solo una herramienta, la mentalidad es el poder real. 🧠"
+            ]
+        }
         
-        if method == "instagrapi":
-            # Preferir Reels para videos verticales
-            return self.upload_reel_instagrapi(video_path, caption, hashtags)
+        templates = caption_templates.get(theme, caption_templates['luxury'])
+        base_caption = templates[0]  # Usar el primero por defecto
         
-        elif method == "graph_api":
-            return self.upload_video_to_instagram(video_path, caption)
+        if custom_text:
+            return f"{custom_text}\n\n{base_caption}"
         
-        else:
-            return False, f"Método desconocido: {method}"
+        return base_caption
+    
+    def get_api_status(self):
+        """Obtener estado de la API"""
+        return {
+            'configured': self.configured,
+            'api_type': self.api_type,
+            'graph_api_available': bool(self.access_token and self.user_id),
+            'instagrapi_available': bool(self.username and self.password),
+            'last_check': datetime.now().isoformat()
+        }

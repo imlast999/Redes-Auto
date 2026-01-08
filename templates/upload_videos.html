@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}Subir Videos - LuxReels{% endblock %}
+{% block page_title %}Subir Videos{% endblock %}
+
+{% block content %}
+<!-- Métodos de Subida -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-upload"></i> Métodos de Subida</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6><i class="fas fa-file-upload"></i> Subir Archivos</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Seleccionar Videos</label>
+                                        <input type="file" class="form-control" name="video_files" 
+                                               multiple accept="video/*" id="videoFiles">
+                                        <small class="form-text text-muted">
+                                            Formatos soportados: MP4, AVI, MOV, MKV (máx. 100MB cada uno)
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="auto_process" id="autoProcess">
+                                            <label class="form-check-label" for="autoProcess">
+                                                Procesar automáticamente después de subir
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" name="upload_method" value="files">
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-gradient-primary">
+                                            <i class="fas fa-upload"></i> Subir Videos
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6><i class="fas fa-folder-open"></i> Desde Carpeta</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Ruta de la Carpeta</label>
+                                        <input type="text" class="form-control" name="folder_path" 
+                                               placeholder="C:\Videos\Instagram" value="{{ folder_path or '' }}">
+                                        <small class="form-text text-muted">
+                                            Busca automáticamente videos en la carpeta especificada
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="include_subfolders" id="includeSubfolders" checked>
+                                            <label class="form-check-label" for="includeSubfolders">
+                                                Incluir subcarpetas
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" name="upload_method" value="folder">
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-gradient-info">
+                                            <i class="fas fa-search"></i> Buscar Videos
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mensajes de Estado -->
+{% if upload_message %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert {{ 'alert-success' if '✅' in upload_message else 'alert-danger' }} alert-dismissible fade show">
+            {{ upload_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Videos Encontrados -->
+{% if found_videos %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-video"></i> Videos Encontrados ({{ found_videos|length }})</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th>Archivo</th>
+                                <th>Tamaño</th>
+                                <th>Ubicación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for video in found_videos %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input video-select" value="{{ video }}">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file-video text-primary me-2"></i>
+                                        <div>
+                                            <div class="fw-bold">{{ video.split('\\')[-1] or video.split('/')[-1] }}</div>
+                                            <small class="text-muted">Video</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">Calculando...</span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ video }}</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-success" onclick="importVideo('{{ video }}')">
+                                            <i class="fas fa-download"></i> Importar
+                                        </button>
+                                        <button class="btn btn-outline-primary" onclick="previewVideo('{{ video }}')">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3">
+                    <button class="btn btn-gradient-success me-2" onclick="importSelected()">
+                        <i class="fas fa-download"></i> Importar Seleccionados
+                    </button>
+                    <button class="btn btn-gradient-primary" onclick="importAll()">
+                        <i class="fas fa-download"></i> Importar Todos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Guía de Formatos -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Formatos Soportados</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h6 class="text-success">✅ Recomendados</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> MP4 (H.264)</li>
+                            <li><i class="fas fa-check text-success"></i> MOV (QuickTime)</li>
+                            <li><i class="fas fa-check text-success"></i> AVI (DivX/Xvid)</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-warning">⚠️ Compatibles</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-exclamation text-warning"></i> MKV</li>
+                            <li><i class="fas fa-exclamation text-warning"></i> WMV</li>
+                            <li><i class="fas fa-exclamation text-warning"></i> FLV</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Especificaciones Óptimas</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Resolución:</strong></td>
+                        <td>1080x1920 (9:16) para Reels</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Duración:</strong></td>
+                        <td>15-90 segundos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tamaño:</strong></td>
+                        <td>Máximo 100MB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FPS:</strong></td>
+                        <td>30 FPS recomendado</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Codec:</strong></td>
+                        <td>H.264 / H.265</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progreso de Subida -->
+<div class="row" id="uploadProgress" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-upload"></i> Progreso de Subida</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span id="currentFile">Preparando...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div id="uploadStatus">Iniciando subida...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Selección múltiple
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.video-select');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// Preview de archivos seleccionados
+document.getElementById('videoFiles').addEventListener('change', function() {
+    const files = this.files;
+    if (files.length > 0) {
+        let totalSize = 0;
+        let fileList = '';
+        
+        for (let i = 0; i < files.length; i++) {
+            totalSize += files[i].size;
+            fileList += `${files[i].name} (${(files[i].size / 1024 / 1024).toFixed(1)}MB)\n`;
+        }
+        
+        const totalSizeMB = (totalSize / 1024 / 1024).toFixed(1);
+        
+        if (totalSize > 500 * 1024 * 1024) { // 500MB límite total
+            alert('El tamaño total de los archivos excede 500MB. Por favor, selecciona menos archivos.');
+            this.value = '';
+            return;
+        }
+        
+        console.log(`Archivos seleccionados:\n${fileList}\nTamaño total: ${totalSizeMB}MB`);
+    }
+});
+
+// Funciones de importación
+function importVideo(videoPath) {
+    if (confirm('¿Importar este video a la biblioteca?')) {
+        showUploadProgress();
+        simulateUpload([videoPath]);
+    }
+}
+
+function importSelected() {
+    const selected = document.querySelectorAll('.video-select:checked');
+    if (selected.length === 0) {
+        alert('Selecciona al menos un video');
+        return;
+    }
+    
+    const videos = Array.from(selected).map(cb => cb.value);
+    if (confirm(`¿Importar ${videos.length} videos seleccionados?`)) {
+        showUploadProgress();
+        simulateUpload(videos);
+    }
+}
+
+function importAll() {
+    const allVideos = Array.from(document.querySelectorAll('.video-select')).map(cb => cb.value);
+    if (confirm(`¿Importar todos los ${allVideos.length} videos encontrados?`)) {
+        showUploadProgress();
+        simulateUpload(allVideos);
+    }
+}
+
+function previewVideo(videoPath) {
+    alert('Preview de video: ' + videoPath.split('\\').pop().split('/').pop());
+}
+
+// Mostrar progreso de subida
+function showUploadProgress() {
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('uploadProgress').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Simular progreso de subida
+function simulateUpload(videos) {
+    let currentVideo = 0;
+    let progress = 0;
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        
+        if (progress > 100) {
+            progress = 100;
+            currentVideo++;
+            
+            if (currentVideo < videos.length) {
+                progress = 0;
+                document.getElementById('currentFile').textContent = 
+                    `Subiendo: ${videos[currentVideo].split('\\').pop().split('/').pop()} (${currentVideo + 1}/${videos.length})`;
+            } else {
+                // Completado
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressPercent').textContent = '100%';
+                document.getElementById('uploadStatus').textContent = '¡Subida completada!';
+                document.getElementById('currentFile').textContent = `${videos.length} videos importados exitosamente`;
+                
+                clearInterval(interval);
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+                return;
+            }
+        }
+        
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+        
+        if (currentVideo === 0 && progress < 30) {
+            document.getElementById('uploadStatus').textContent = 'Validando archivos...';
+        } else if (progress < 60) {
+            document.getElementById('uploadStatus').textContent = 'Subiendo archivo...';
+        } else if (progress < 90) {
+            document.getElementById('uploadStatus').textContent = 'Procesando...';
+        } else {
+            document.getElementById('uploadStatus').textContent = 'Finalizando...';
+        }
+    }, 200);
+}
+
+// Función para actualizar datos de la página
+function updatePageData() {
+    console.log('Upload videos page data updated');
+}
+
+// Drag and drop functionality
+const dropZone = document.querySelector('.card-body');
+if (dropZone) {
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-primary');
+    });
+    
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-primary');
+    });
+    
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-primary');
+        
+        const files = e.dataTransfer.files;
+        const videoInput = document.getElementById('videoFiles');
+        videoInput.files = files;
+        
+        // Trigger change event
+        const event = new Event('change', { bubbles: true });
+        videoInput.dispatchEvent(event);
+    });
+}
+</script>
+{% endblock %}

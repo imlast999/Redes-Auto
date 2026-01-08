@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Procesar Videos - LuxReels{% endblock %}
+{% block page_title %}Procesar Videos{% endblock %}
+
+{% block content %}
+<!-- Opciones de Procesamiento -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cogs"></i> Opciones de Procesamiento</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Marca de Agua</strong></label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="add_watermark" id="add_watermark" checked>
+                                    <label class="form-check-label" for="add_watermark">
+                                        Agregar Marca de Agua
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <label class="form-label">Texto de Marca de Agua:</label>
+                                    <input type="text" class="form-control" name="watermark_text" value="@luxreels" placeholder="@luxreels">
+                                </div>
+                                <div class="mt-2">
+                                    <label class="form-label">Posición de Marca de Agua:</label>
+                                    <select class="form-select" name="watermark_position">
+                                        <option value="bottom_right">Abajo Derecha</option>
+                                        <option value="bottom_left">Abajo Izquierda</option>
+                                        <option value="top_right">Arriba Derecha</option>
+                                        <option value="top_left">Arriba Izquierda</option>
+                                        <option value="center">Centro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Redimensionamiento</strong></label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="resize_video" id="resize_video" checked>
+                                    <label class="form-check-label" for="resize_video">
+                                        Redimensionar para Instagram
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <label class="form-label">Relación de Aspecto:</label>
+                                    <select class="form-select" name="aspect_ratio">
+                                        <option value="9:16">9:16 (Stories/Reels)</option>
+                                        <option value="1:1">1:1 (Cuadrado)</option>
+                                        <option value="4:5">4:5 (Feed)</option>
+                                    </select>
+                                </div>
+                                <div class="mt-2">
+                                    <label class="form-label">Calidad:</label>
+                                    <select class="form-select" name="quality">
+                                        <option value="high">Alta</option>
+                                        <option value="medium" selected>Media</option>
+                                        <option value="low">Baja</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Videos Pendientes -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-video"></i> Videos Pendientes</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_videos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Archivo</th>
+                                    <th>Tamaño</th>
+                                    <th>Duración</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for video in pending_videos %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-file-video text-primary me-2"></i>
+                                        {{ video.filename }}
+                                    </td>
+                                    <td>{{ video.size }}</td>
+                                    <td>{{ video.duration }}</td>
+                                    <td>
+                                        <span class="badge bg-warning">Pendiente</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-gradient-primary me-1" onclick="processVideo('{{ video.id }}')">
+                                            <i class="fas fa-play"></i> Procesar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteVideo('{{ video.id }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay videos pendientes</h5>
+                        <p class="text-muted">Sube algunos videos para comenzar a procesarlos</p>
+                        <a href="/upload_videos" class="btn btn-gradient-primary">
+                            <i class="fas fa-upload"></i> Subir Videos
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Videos Procesados -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-check-circle"></i> Videos Procesados</h5>
+            </div>
+            <div class="card-body">
+                {% if processed_videos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Archivo</th>
+                                    <th>Procesado</th>
+                                    <th>Tamaño Final</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for video in processed_videos %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-file-video text-success me-2"></i>
+                                        {{ video.filename }}
+                                    </td>
+                                    <td>{{ video.processed_date }}</td>
+                                    <td>{{ video.final_size }}</td>
+                                    <td>
+                                        <span class="badge bg-success">Listo</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-gradient-info me-1" onclick="previewVideo('{{ video.id }}')">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                        <button class="btn btn-sm btn-gradient-success me-1" onclick="downloadVideo('{{ video.id }}')">
+                                            <i class="fas fa-download"></i> Descargar
+                                        </button>
+                                        <button class="btn btn-sm btn-gradient-warning" onclick="publishVideo('{{ video.id }}')">
+                                            <i class="fab fa-instagram"></i> Publicar
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-cogs fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">No hay videos procesados aún</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Masivas -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-tasks"></i> Acciones Masivas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-primary" onclick="processAllVideos()">
+                                <i class="fas fa-play-circle"></i> Procesar Videos Seleccionados
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-success" onclick="processAllVideos()">
+                                <i class="fas fa-cogs"></i> Procesar Todos
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <button class="btn btn-gradient-warning" onclick="clearProcessed()">
+                                <i class="fas fa-broom"></i> Limpiar Procesados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Progreso -->
+<div class="modal fade" id="progressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Procesando Video</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Progreso:</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div id="progressStatus">Iniciando procesamiento...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function processVideo(videoId) {
+    // Mostrar modal de progreso
+    const modal = new bootstrap.Modal(document.getElementById('progressModal'));
+    modal.show();
+    
+    // Simular procesamiento
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 100) progress = 100;
+        
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+        
+        if (progress < 30) {
+            document.getElementById('progressStatus').textContent = 'Analizando video...';
+        } else if (progress < 60) {
+            document.getElementById('progressStatus').textContent = 'Aplicando efectos...';
+        } else if (progress < 90) {
+            document.getElementById('progressStatus').textContent = 'Renderizando...';
+        } else if (progress >= 100) {
+            document.getElementById('progressStatus').textContent = '¡Completado!';
+            clearInterval(interval);
+            setTimeout(() => {
+                modal.hide();
+                location.reload();
+            }, 1500);
+        }
+    }, 200);
+}
+
+function processAllVideos() {
+    if (confirm('¿Procesar todos los videos pendientes?')) {
+        processVideo('all');
+    }
+}
+
+function deleteVideo(videoId) {
+    if (confirm('¿Eliminar este video?')) {
+        // Implementar eliminación
+        alert('Video eliminado');
+        location.reload();
+    }
+}
+
+function previewVideo(videoId) {
+    // Implementar preview
+    alert('Función de preview en desarrollo');
+}
+
+function downloadVideo(videoId) {
+    // Implementar descarga
+    alert('Descargando video...');
+}
+
+function publishVideo(videoId) {
+    if (confirm('¿Publicar este video en Instagram?')) {
+        alert('Publicando en Instagram...');
+    }
+}
+
+function clearProcessed() {
+    if (confirm('¿Limpiar todos los videos procesados?')) {
+        alert('Videos procesados limpiados');
+        location.reload();
+    }
+}
+
+// Función para actualizar datos de la página
+function updatePageData() {
+    fetch('/api/process_status')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Process videos page updated:', data);
+        })
+        .catch(error => console.log('Error updating process videos:', error));
+}
+</script>
+{% endblock %}
